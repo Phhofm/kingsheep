@@ -28,14 +28,19 @@ public class Wolf extends UzhShortNameCreature {
         //move = Move.WAIT; //provided by exercise
 
         //code of awesome wolf
-        int i;
+        char[] objectives = new char[1];
 
-        for(i=0;i<6;i++){
-            if(i<3){
-            move=Move.UP;}
-            else {
-                move = Move.LEFT;
+        if (alive) {
+            objectives[0] = '3';
+            move = getGreedyAction(map, objectives);
+
+            if (move == null) {
+                move = Move.WAIT;
             }
-            }
+
+        } else {
+            move = Move.WAIT;
         }
+
     }
+}
