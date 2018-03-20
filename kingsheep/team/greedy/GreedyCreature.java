@@ -33,7 +33,7 @@ public abstract class GreedyCreature extends Creature {
         squareQueue = new ArrayList<Square>();
 
         this.map = map;
-        this.objective = new Type[objective.length];
+        this.objective = new Type[objective.length];        //this is their method simply for getting the objective for either the sheep or for the wolf. since they have different objectives
         for (int i = 0; i< objective.length; ++i) {
             this.objective[i] = Type.getType(objective[i]);
         }

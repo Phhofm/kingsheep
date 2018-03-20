@@ -4,32 +4,54 @@ import kingsheep.Creature;
 import kingsheep.Simulator;
 import kingsheep.Type;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-/**
- * Created by kama on 04.03.16.
- */
 public abstract class UzhShortNameCreature extends Creature {
 
+    //this here is copied from greedy
     private HashMap<String, Square> visitedSquares;
     private ArrayList<Square> squareQueue;
     private ArrayList<Square> squareQueueToAdd;
     private Type map[][];
     private Type objective[];
+    private BasicInternalFrameTitlePane.MoveAction m;
 
 
-
+    //original from exercise
     public UzhShortNameCreature(Type type, Simulator parent, int playerID, int x, int y) {
         super(type, parent, playerID, x, y);
     }
-
+    //original from exercise
     public String getNickname(){
         //TODO change this to any nickname you like. This should not be your phhofm. That way you can stay anonymous on the ranking list.
         return "Mormon";
     }
 
+    //alpha beta search from book
+    protected Move alphaBetaSearch(state) {//returns an action
+        int v = maxValue(state, 0, 2);
+        return Move m in ACTIONS(state) with value v;
+    }
+    protected int maxValue(state,a,b) {//returns a utility value
+    if terminalTest(state){
+        return utility(state);
+        }
+        int v = 0;
+    foreach a in ACTIONS(state) do
+        int v = MAX(v, minValue(Result))
+
+
+
+
+
+
+
+
+
+    //copied from here on greedy
     protected Move getGreedyAction(Type map[][], char[] objective){
         visitedSquares = new HashMap<String, Square>();
         squareQueue = new ArrayList<Square>();
@@ -45,6 +67,7 @@ public abstract class UzhShortNameCreature extends Creature {
         return root.breadthFirstThroughEnvironmentUntilObjectiveIsReached();
     }
 
+    //I copied this method but it is never accessed i think
     private void printMap(Type map[][]){
         for (int i = 0; i < map.length; ++i)
         {
