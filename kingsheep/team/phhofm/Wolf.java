@@ -25,22 +25,7 @@ public class Wolf extends UzhShortNameCreature {
         move = Move.RIGHT;
         move = Move.WAIT;
 		*/
-        //move = Move.WAIT; //provided by exercise
-
-        //code of awesome wolf
-        char[] objectives = new char[1];
-
-        if (alive) {
-            objectives[0] = '3';
-            move = getGreedyAction(map, objectives);
-
-            if (move == null) {
-                move = Move.WAIT;
-            }
-
-        } else {
-            move = Move.WAIT;
-        }
+        move = Move.WAIT; //provided by exercise
 
     }
 }
