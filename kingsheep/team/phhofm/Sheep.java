@@ -28,6 +28,9 @@ public class Sheep extends UzhShortNameCreature {
         move = Move.WAIT;
 		*/
         move = Move.LEFT; //provided by exercise
-
+        //System.out.println(map[3][9].name());  //prints out RHUBARB or EMPTY or SHEEP2 etc
+        System.out.println("x "+ x);
+        System.out.println("y "+ y);
+        System.out.println(map[y][x].name());   //position of sheep is y,x
     }
 }

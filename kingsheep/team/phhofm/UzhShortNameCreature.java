@@ -30,27 +30,6 @@ public abstract class UzhShortNameCreature extends Creature {
         return "Mormon";
     }
 
-    //alpha beta search from book
-    protected Move alphaBetaSearch(state) {//returns an action
-        int v = maxValue(state, 0, 2);
-        return Move m in ACTIONS(state) with value v;
-    }
-    protected int maxValue(state,a,b) {//returns a utility value
-    if terminalTest(state){
-        return utility(state);
-        }
-        int v = 0;
-    foreach a in ACTIONS(state) do
-        int v = MAX(v, minValue(Result))
-
-
-
-
-
-
-
-
-
     //copied from here on greedy
     protected Move getGreedyAction(Type map[][], char[] objective){
         visitedSquares = new HashMap<String, Square>();

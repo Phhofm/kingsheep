@@ -22,6 +22,8 @@ public class SheepStable extends UzhShortNameCreature {
     //this is the algorithm for alpha-beta search taken from the book
     //TODO adapt this pseudocode to real code and this scenario
     //how do states look like exactly? make own types? make min and max and utility function
+
+   /*
     protected Move alphaBetaSearch(state){  //returns a move
         int v = maxValue(state,a,b);
         return m;                           //TODO return move that leads to state with value v
@@ -50,7 +52,7 @@ public class SheepStable extends UzhShortNameCreature {
         b = MIN(b,v);
         return v;
     }
-
+*/
     //copied from greedy
     private boolean isSquareSafe(Type map[][], Move move){
         int x, y;
