@@ -11,6 +11,7 @@ public class Sheep extends UzhShortNameCreature {
     private ArrayList<Square> squareInitializeExpandQueue;
     private Type mySheep;
     private Type enemySheep;
+    private final int MAXDISTANCE = 5;
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -79,8 +80,8 @@ public class Sheep extends UzhShortNameCreature {
         //Add all valid neighbour Squares
         try {
 
-            //check if outside map. Map is always 15x19 squares, see assignment
-            if(origin.yCoor < 0){} else {
+            //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
+            if(origin.yCoor < 0 || origin.distance > MAXDISTANCE){} else {
                 //create square up and assign distance
                 Square upsquare = new Square(map[yPos + 1][xPos], origin.xCoor, origin.yCoor + 1, origin.distance + 1, 0, 0);
                 //assign value to upsquare
@@ -105,8 +106,8 @@ public class Sheep extends UzhShortNameCreature {
                 }
             }
 
-            //check if outside map. Map is always 15x19 squares, see assignment
-            if(origin.xCoor > 18){} else {
+            //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
+            if(origin.xCoor > 18|| origin.distance > MAXDISTANCE){} else {
                 Square rightsquare = new Square(map[yPos][xPos + 1], origin.xCoor + 1, origin.yCoor, origin.distance + 1, 0, 0);
                 if (rightsquare.type.equals(Type.EMPTY)) {
                     rightsquare.value = 0;
@@ -129,8 +130,8 @@ public class Sheep extends UzhShortNameCreature {
                 }
             }
 
-            //check if outside map. Map is always 15x19 squares, see assignment
-            if(origin.yCoor < 0){} else {
+            //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
+            if(origin.yCoor < 0|| origin.distance > MAXDISTANCE){} else {
                 Square leftsquare = new Square(map[yPos][xPos - 1], origin.xCoor - 1, origin.yCoor, origin.distance + 1, 0, 0);
                 if (leftsquare.type.equals(Type.EMPTY)) {
                     leftsquare.value = 0;
@@ -153,8 +154,8 @@ public class Sheep extends UzhShortNameCreature {
                 }
             }
 
-            //check if outside map. Map is always 15x19 squares, see assignment
-            if(origin.yCoor > 14){} else {
+            //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
+            if(origin.yCoor > 14|| origin.distance > MAXDISTANCE){} else {
                 Square downsquare = new Square(map[yPos + 1][xPos], origin.xCoor, origin.yCoor + 1, origin.distance + 1, 0, 0);
                 if (downsquare.type.equals(Type.EMPTY)) {
                     downsquare.value = 0;
