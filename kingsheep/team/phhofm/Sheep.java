@@ -40,8 +40,6 @@ public class Sheep extends UzhShortNameCreature {
         System.out.println("x " + this.x);
         System.out.println("y " + this.y);
         System.out.println(map[this.y][this.x].name());   //position of sheep is y,x
-        int x = -999;
-        System.out.println(this.x);
 
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
@@ -80,7 +78,6 @@ public class Sheep extends UzhShortNameCreature {
     private void initializeMapWithValues(Square origin, int yPos, int xPos, Type map[][]) {
         //Add all valid neighbour Squares
         try {
-            //addSquareToQueueIfAccessible(new Square(map[yPos - 1][xPos], origin.getXCoordinate(), origin.getYCoordinate() - 1, objective, Move.UP, this));
             Square upsquare = new Square(map[yPos + 1][xPos], origin.xCoor, origin.yCoor + 1, origin.distance + 1, 0, 0);
             if (upsquare.type.equals(Type.EMPTY)) {
                 upsquare.value = 0;
@@ -99,17 +96,78 @@ public class Sheep extends UzhShortNameCreature {
             } else if (upsquare.type.equals(mySheep)) {
                 upsquare.value = 0;
             } else {
-                throw new java.lang.RuntimeException("could not determine type of square to assign a value");
+                throw new java.lang.RuntimeException("could not determine type of upsquare to assign a value");
             }
 
+            Square rightsquare = new Square(map[yPos][xPos + 1], origin.xCoor + 1, origin.yCoor, origin.distance + 1, 0, 0);
+            if (rightsquare.type.equals(Type.EMPTY)) {
+                rightsquare.value = 0;
+            } else if (rightsquare.type.equals(Type.GRASS)) {
+                rightsquare.value = 1;
+            } else if (rightsquare.type.equals(Type.RHUBARB)) {
+                rightsquare.value = 5;
+            } else if (rightsquare.type.equals(Type.FENCE)) {
+                rightsquare.value = -999;
+            } else if (rightsquare.type.equals(Type.WOLF1)) {
+                rightsquare.value = -999;
+            } else if (rightsquare.type.equals(Type.WOLF2)) {
+                rightsquare.value = -999;
+            } else if (rightsquare.type.equals(enemySheep)) {
+                rightsquare.value = -999;
+            } else if (rightsquare.type.equals(mySheep)) {
+                rightsquare.value = 0;
+            } else {
+                throw new java.lang.RuntimeException("could not determine type of rightsquare to assign a value");
+            }
 
-           // addSquareToQueueIfAccessible(new Square(map[yPos + 1][xPos], origin.getXCoordinate(), origin.getYCoordinate() + 1, objective, Move.DOWN, this));
-           // addSquareToQueueIfAccessible(new Square(map[yPos][xPos - 1], origin.getXCoordinate() - 1, origin.getYCoordinate(), objective, Move.LEFT, this));
-           // addSquareToQueueIfAccessible(new Square(map[yPos][xPos + 1], origin.getXCoordinate() + 1, origin.getYCoordinate(), objective, Move.RIGHT, this));
+            Square leftsquare = new Square(map[yPos][xPos - 1], origin.xCoor - 1, origin.yCoor, origin.distance + 1, 0, 0);
+            if (leftsquare.type.equals(Type.EMPTY)) {
+                leftsquare.value = 0;
+            } else if (leftsquare.type.equals(Type.GRASS)) {
+                leftsquare.value = 1;
+            } else if (leftsquare.type.equals(Type.RHUBARB)) {
+                leftsquare.value = 5;
+            } else if (leftsquare.type.equals(Type.FENCE)) {
+                leftsquare.value = -999;
+            } else if (leftsquare.type.equals(Type.WOLF1)) {
+                leftsquare.value = -999;
+            } else if (leftsquare.type.equals(Type.WOLF2)) {
+                leftsquare.value = -999;
+            } else if (leftsquare.type.equals(enemySheep)) {
+                leftsquare.value = -999;
+            } else if (leftsquare.type.equals(mySheep)) {
+                leftsquare.value = 0;
+            } else {
+                throw new java.lang.RuntimeException("could not determine type of leftsquare to assign a value");
+            }
+
+            Square downsquare = new Square(map[yPos+1][xPos], origin.xCoor, origin.yCoor+1, origin.distance + 1, 0, 0);
+            if (downsquare.type.equals(Type.EMPTY)) {
+                downsquare.value = 0;
+            } else if (downsquare.type.equals(Type.GRASS)) {
+                downsquare.value = 1;
+            } else if (downsquare.type.equals(Type.RHUBARB)) {
+                downsquare.value = 5;
+            } else if (downsquare.type.equals(Type.FENCE)) {
+                downsquare.value = -999;
+            } else if (downsquare.type.equals(Type.WOLF1)) {
+                downsquare.value = -999;
+            } else if (downsquare.type.equals(Type.WOLF2)) {
+                downsquare.value = -999;
+            } else if (downsquare.type.equals(enemySheep)) {
+                downsquare.value = -999;
+            } else if (downsquare.type.equals(mySheep)) {
+                downsquare.value = 0;
+            } else {
+                throw new java.lang.RuntimeException("could not determine type of downsquare to assign a value");
+            }
+
         } catch (ArrayIndexOutOfBoundsException e) {
             //do not add square since it is outside of the play board
         }
     }
+
+    //at end when whole map is initialized, search if the enemy wolf appears. if yes, mark immediate neighbor squares as -999 value.
 
     //make data structure for Squares with values yCoor,xCoor,cost,value,totalValue.
     //Make datastructure like in greedy. Hashmap with string and Square type. The string is the Coordinate (yCoor_xCoor).
@@ -119,7 +177,7 @@ public class Sheep extends UzhShortNameCreature {
     private class Square {
         private Type type;
         private int yCoor, xCoor, distance, value, totalValue;
-        private boolean visited = false;
+        private boolean initExpanded = false;
 
         private Square(Type type, int xCoor, int yCoor, int distance, int value, int totalValue) {
             this.type = type;
