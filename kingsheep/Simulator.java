@@ -61,8 +61,8 @@ public class Simulator {
         try {
             // Makes sure the student is always player 1 when playing against predefined agents
             if (team1.equals("awesome") || team1.equals("greedy")) {
-                p[0] = loadTeam(team1, new Color(222, 0, 0), 2);
-                p[1] = loadTeam(team2, new Color(0, 0, 222), 1);
+                p[0] = loadTeam(team2, new Color(222, 0, 0), 1);
+                p[1] = loadTeam(team1, new Color(0, 0, 222), 2);
             } else {
                 p[0] = loadTeam(team1, new Color(222, 0, 0), 1);
                 p[1] = loadTeam(team2, new Color(0, 0, 222), 2);
