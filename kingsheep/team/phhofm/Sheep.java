@@ -126,7 +126,7 @@ public class Sheep extends UzhShortNameCreature {
         //Add all valid neighbour Squares
         try {
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.yCoor-1 < 0 || origin.distance > MAXDISTANCE) {
+            if (origin.yCoor-1 < 0 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if this exists already in the Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, -1, 0))) {
@@ -162,7 +162,7 @@ public class Sheep extends UzhShortNameCreature {
             }
 
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.xCoor+1 > 18 || origin.distance > MAXDISTANCE) {
+            if (origin.xCoor+1 > 18 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, 1))) {
@@ -197,7 +197,7 @@ public class Sheep extends UzhShortNameCreature {
             }
 
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.xCoor-1 < 0 || origin.distance > MAXDISTANCE) {
+            if (origin.xCoor-1 < 0 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, -1))) {
@@ -232,7 +232,7 @@ public class Sheep extends UzhShortNameCreature {
             }
 
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.yCoor+1 > 14 || origin.distance > MAXDISTANCE) {
+            if (origin.yCoor+1 > 14 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 1, 1))) {
@@ -291,6 +291,9 @@ public class Sheep extends UzhShortNameCreature {
             this.type = type;
             this.xCoor = xCoor;
             this.yCoor = yCoor;
+            this.distance = distance;
+            this.value=value;
+            this.pathProfit=pathProfit;
         }
     }
     protected String getStringCoordinate(Square square, int yShift, int xShift) {
