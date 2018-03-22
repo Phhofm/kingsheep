@@ -4,6 +4,8 @@ import kingsheep.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.ListIterator;
 
 public class Sheep extends UzhShortNameCreature {
 
@@ -12,6 +14,7 @@ public class Sheep extends UzhShortNameCreature {
     private Type mySheep;
     private Type enemySheep;
     private final int MAXDISTANCE = 5;
+    ListIterator<Square> initializeIter;
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -23,12 +26,12 @@ public class Sheep extends UzhShortNameCreature {
         /*
         TODO
 		YOUR SHEEP CODE HERE
-		
+
 		BASE YOUR LOGIC ON THE INFORMATION FROM THE ARGUMENT map[][]
-		
-		YOUR CODE NEED TO BE DETERMINISTIC. 
+
+		YOUR CODE NEED TO BE DETERMINISTIC.
 		THAT MEANS, GIVEN A DETERMINISTIC OPPONENT AND MAP THE ACTIONS OF YOUR SHEEP HAVE TO BE REPRODUCIBLE
-		
+
 		SET THE MOVE VARIABLE TO ONE TOF THE 5 VALUES
         move = Move.UP;
         move = Move.DOWN;
@@ -41,7 +44,12 @@ public class Sheep extends UzhShortNameCreature {
         System.out.println("x " + this.x);
         System.out.println("y " + this.y);
         System.out.println(map[this.y][this.x].name());   //position of sheep is y,x
+        System.out.println(map[14][18]); //this is the outmost square. no greater values or we have out of bounds
 
+
+        //initialize used variables
+        squareInitializeExpandQueue = new ArrayList<>();
+        mapWithValues = new HashMap<>();
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
         mySheep = map[this.y][this.x];
@@ -55,6 +63,34 @@ public class Sheep extends UzhShortNameCreature {
         System.out.println(mySheep);
         System.out.println(enemySheep);
 
+        //Create root square where sheep is in for initialization
+        Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0);
+
+        //add this root square to the expansion queue for initialization
+        squareInitializeExpandQueue.add(sheep);
+
+
+        initializeIter = squareInitializeExpandQueue.listIterator();
+
+        while (initializeIter.hasNext()){
+            Square square = initializeIter.next();
+            initializeIter.remove();
+            initializeMapWithValues(square,square.yCoor,square.xCoor,map);
+        }
+        //initialize map till Maxdistance: give them distances to sheep and values
+       //this will give a concurrentmodificationexception since we add/revome elements while iterating
+        // for(Square square: squareInitializeExpandQueue){
+      //   initializeMapWithValues(square,square.yCoor,square.xCoor,map);
+      //  }
+
+        System.out.println(mapWithValues);
+
+
+        //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
+        //we then expand from the sheep, and each expansion the pathProfit of the new Square is originPathProfit-1+ValueOfNewSquare. we store this pathProfit in the new square, only if it did not exist yet or
+        //if it is bigger. We also store in the square as arraylist the moves we need to get there.
+        //at the end, we choose the Square with the highest distance and the highest PathProfit and execute its stored movementarray for two moves then recalculate everything since our sheeps position
+        //and the other things will have changed.
 
         //each expansion costs -1. or add a int to the square how far away from the sheep it is. that is g (costs)  (A* search)
         //each sqare has an int for its value (h) so grass=1 rhubarb = 5 fence = -999 enemy wolf and next to enemy wolf also. enemy sheep also.
@@ -65,22 +101,24 @@ public class Sheep extends UzhShortNameCreature {
         //Initialize map squares with distance costs up to 10
         //Look at squares left right up and down of sheep (access coordinates)
         //If is type empty, give total value -1. put in the move-arraylist of that square how you got there (example: Left)
-        //expand the node that has the highest distance and the lowest totalValue. Also in 1 step accessible, so left, right, up, down. You temporarily subtract from the total value of each square its own value,
+        //expand the node that has the highest distance and the lowest pathProfit. Also in 1 step accessible, so left, right, up, down. You temporarily subtract from the total value of each square its own value,
         //add 1 to this total value, and if the total value is smaller for this square (or if it was empty before), you write (or overwrite) the total value and how you got there (LU -> Left Up).
-        //mark the ones that got already expanded to not cycle infinitely. Except their totalvalue changes, then unmark them.
+        //mark the ones that got already expanded to not cycle infinitely. Except their pathProfit changes, then unmark them.
 
 
 
         /*initialize map with distances up to 10 from sheep. This will happen each time new since game states change. this would only need to happen every second time thought since this sheep moves two times. So counter if even use old strategy, if uneven make new. initilize so this makes sense.*/
         //create sheep-root Square
-        Square sheep = new Square(type, x, y, 0, 0, 0);
+        //Square sheep = new Square(type, x, y, 0, 0, 0);
         //expand: Create neighbor squares. Add values and distances (+1 or root square distance). If they are not outside the board, and dont exist yet in the hashmap, add them to the hashmap and to the toExpand Queue (except distance is >10.
+
+
+
     }
 
     private void initializeMapWithValues(Square origin, int yPos, int xPos, Type map[][]) {
         //Add all valid neighbour Squares
         try {
-
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
             if (origin.yCoor-1 < 0 || origin.distance > MAXDISTANCE) {
             } else {
@@ -112,7 +150,8 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(upsquare, 0, 0), upsquare);
                     //add to expandQueue
-                    squareInitializeExpandQueue.add(upsquare);
+                    //squareInitializeExpandQueue.add(upsquare);
+                    initializeIter.add(upsquare);
                 }
             }
 
@@ -146,7 +185,8 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(rightsquare, 0, 0), rightsquare);
                     //add to expandQueue
-                    squareInitializeExpandQueue.add(rightsquare);
+                    //squareInitializeExpandQueue.add(rightsquare);
+                    initializeIter.add(rightsquare);
                 }
             }
 
@@ -180,7 +220,8 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(leftsquare, 0, 0), leftsquare);
                     //add to expandQueue
-                    squareInitializeExpandQueue.add(leftsquare);
+                    //squareInitializeExpandQueue.add(leftsquare);
+                    initializeIter.add(leftsquare);
                 }
             }
 
@@ -213,7 +254,8 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(downsquare, 0, 0), downsquare);
                     //add to expandQueue
-                    squareInitializeExpandQueue.add(downsquare);
+                    //squareInitializeExpandQueue.add(downsquare);
+                    initializeIter.add(downsquare);
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -230,22 +272,22 @@ public class Sheep extends UzhShortNameCreature {
 
 
 
-    //make data structure for Squares with values yCoor,xCoor,cost,value,totalValue.
+    //make data structure for Squares with values yCoor,xCoor,cost,value,pathProfit.
     //Make datastructure like in greedy. Hashmap with string and Square type. The string is the Coordinate (yCoor_xCoor).
-    //In the Quare type, store yCoor, xCoor, distance, value, totalValue.
+    //In the Quare type, store yCoor, xCoor, distance, value, pathProfit.
     //this is used by the methods so it needs to be at the end otherwise in Java the methods will not recognize
 
     private class Square {
         private Type type;
-        private int yCoor, xCoor, distance, value, totalValue;
+        private int yCoor, xCoor, distance, value, pathProfit;
 
-        private Square(Type type, int xCoor, int yCoor, int distance, int value, int totalValue) {
+        private Square(Type type, int xCoor, int yCoor, int distance, int value, int pathProfit) {
             this.type = type;
             this.xCoor = xCoor;
             this.yCoor = yCoor;
         }
     }
     protected String getStringCoordinate(Square square, int yShift, int xShift) {
-        return Integer.toString(square.xCoor + yShift) + "_" + Integer.toString(square.xCoor + xShift);
+        return Integer.toString(square.yCoor + yShift) + "_" + Integer.toString(square.xCoor + xShift);
     }
 }
