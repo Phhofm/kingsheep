@@ -76,7 +76,11 @@ public class Sheep extends UzhShortNameCreature {
             Square square = initializeIter.next();
             initializeIter.remove();
             initializeMapWithValues(square,square.yCoor,square.xCoor,map);
+            initializeIter = squareInitializeExpandQueue.listIterator();
         }
+
+        System.out.println(initializeIter.hasNext());
+        System.out.println(initializeIter);
         //initialize map till Maxdistance: give them distances to sheep and values
        //this will give a concurrentmodificationexception since we add/revome elements while iterating
         // for(Square square: squareInitializeExpandQueue){
@@ -84,6 +88,8 @@ public class Sheep extends UzhShortNameCreature {
       //  }
 
         System.out.println(mapWithValues);
+        System.out.println("test");
+
 
 
         //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
