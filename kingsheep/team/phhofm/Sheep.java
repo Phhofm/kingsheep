@@ -9,12 +9,15 @@ import java.util.ListIterator;
 
 public class Sheep extends UzhShortNameCreature {
 
-    private HashMap<String, Square> mapWithValues;
-    private ArrayList<Square> squareInitializeExpandQueue;
+    private HashMap<String, Square> mapWithValues;  //our hashmap for extended map, meaning squares with values
+    private ArrayList<Square> squareInitializeExpandQueue;  //in initialization for expanding the not yet expanded squares. this changes during iteration, no fixed value
     private Type mySheep;
+    private Type myWolf;
     private Type enemySheep;
-    private final int MAXDISTANCE = 5;
-    ListIterator<Square> initializeIter;
+    private Type enemyWolf;
+    private final int MAXDISTANCE = 5;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
+    ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
+    private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -49,15 +52,20 @@ public class Sheep extends UzhShortNameCreature {
 
         //initialize used variables
         squareInitializeExpandQueue = new ArrayList<>();
+        allInitializedSquares = new ArrayList<>();
         mapWithValues = new HashMap<>();
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
         mySheep = map[this.y][this.x];
 
         if (mySheep.equals(Type.SHEEP1)) {
+            myWolf = Type.WOLF1;
             enemySheep = Type.SHEEP2;
+            enemyWolf = Type.WOLF2;
         } else {
+            myWolf = Type.WOLF2;
             enemySheep = Type.SHEEP1;
+            enemyWolf = Type.WOLF1;
         }
 
         System.out.println(mySheep);
@@ -69,27 +77,59 @@ public class Sheep extends UzhShortNameCreature {
         //add this root square to the expansion queue for initialization
         squareInitializeExpandQueue.add(sheep);
 
+        //add also for later searching for enemy wolf in initialized squares
+        allInitializedSquares.add(sheep);
+
 
         initializeIter = squareInitializeExpandQueue.listIterator();
 
-        while (initializeIter.hasNext()){
+        while (initializeIter.hasNext()) {
             Square square = initializeIter.next();
             initializeIter.remove();
-            initializeMapWithValues(square,square.yCoor,square.xCoor,map);
+            initializeMapWithValues(square, square.yCoor, square.xCoor, map);
             initializeIter = squareInitializeExpandQueue.listIterator();
         }
 
         System.out.println(initializeIter.hasNext());
         System.out.println(initializeIter);
         //initialize map till Maxdistance: give them distances to sheep and values
-       //this will give a concurrentmodificationexception since we add/revome elements while iterating
+        //this will give a concurrentmodificationexception since we add/revome elements while iterating
         // for(Square square: squareInitializeExpandQueue){
-      //   initializeMapWithValues(square,square.yCoor,square.xCoor,map);
-      //  }
+        //   initializeMapWithValues(square,square.yCoor,square.xCoor,map);
+        //  }
 
         System.out.println(mapWithValues);
         System.out.println("test");
 
+        //search for enemy wolf and give adjustent squares the value of -999 so we will never move right next to the enemy wolf to be eaten. Be eaten is the WORST CASE. This method has been tested with myWolf.
+        for (Square square : allInitializedSquares) {
+            if (square.type != null && square.type.equals(enemyWolf)) {
+
+                //give adjustent squares value -999 if they exist
+                //up
+                if (mapWithValues.containsKey(getStringCoordinate(square, -1, 0))) {
+                    mapWithValues.get(getStringCoordinate(square, -1, 0)).value = -999;
+                }
+                //left
+                if (mapWithValues.containsKey(getStringCoordinate(square, 0, -1))) {
+                    mapWithValues.get(getStringCoordinate(square, 0, -1)).value = -999;
+                }
+                //right
+                if (mapWithValues.containsKey(getStringCoordinate(square, 0, 1))) {
+                    mapWithValues.get(getStringCoordinate(square, 0, 1)).value = -999;
+                }
+                //down
+                if (mapWithValues.containsKey(getStringCoordinate(square, 1, 0))) {
+                    mapWithValues.get(getStringCoordinate(square, 1, 0)).value = -999;
+                }
+
+            }
+        }
+
+        System.out.println(mapWithValues);
+        System.out.println("test");
+
+        //now the search path
 
 
         //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
@@ -119,14 +159,13 @@ public class Sheep extends UzhShortNameCreature {
         //expand: Create neighbor squares. Add values and distances (+1 or root square distance). If they are not outside the board, and dont exist yet in the hashmap, add them to the hashmap and to the toExpand Queue (except distance is >10.
 
 
-
     }
 
     private void initializeMapWithValues(Square origin, int yPos, int xPos, Type map[][]) {
         //Add all valid neighbour Squares
         try {
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.yCoor-1 < 0 || origin.distance >= MAXDISTANCE) {
+            if (origin.yCoor - 1 < 0 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if this exists already in the Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, -1, 0))) {
@@ -158,11 +197,12 @@ public class Sheep extends UzhShortNameCreature {
                     //add to expandQueue
                     //squareInitializeExpandQueue.add(upsquare);
                     initializeIter.add(upsquare);
+                    allInitializedSquares.add(upsquare);
                 }
             }
 
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.xCoor+1 > 18 || origin.distance >= MAXDISTANCE) {
+            if (origin.xCoor + 1 > 18 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, 1))) {
@@ -193,11 +233,12 @@ public class Sheep extends UzhShortNameCreature {
                     //add to expandQueue
                     //squareInitializeExpandQueue.add(rightsquare);
                     initializeIter.add(rightsquare);
+                    allInitializedSquares.add(rightsquare);
                 }
             }
 
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.xCoor-1 < 0 || origin.distance >= MAXDISTANCE) {
+            if (origin.xCoor - 1 < 0 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, -1))) {
@@ -228,11 +269,12 @@ public class Sheep extends UzhShortNameCreature {
                     //add to expandQueue
                     //squareInitializeExpandQueue.add(leftsquare);
                     initializeIter.add(leftsquare);
+                    allInitializedSquares.add(leftsquare);
                 }
             }
 
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
-            if (origin.yCoor+1 > 14 || origin.distance >= MAXDISTANCE) {
+            if (origin.yCoor + 1 > 14 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 1, 1))) {
@@ -262,6 +304,7 @@ public class Sheep extends UzhShortNameCreature {
                     //add to expandQueue
                     //squareInitializeExpandQueue.add(downsquare);
                     initializeIter.add(downsquare);
+                    allInitializedSquares.add(downsquare);
                 }
             }
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -275,7 +318,6 @@ public class Sheep extends UzhShortNameCreature {
 
 
     //at end when whole map is initialized, search if the enemy wolf appears. if yes, mark immediate neighbor squares as -999 value.
-
 
 
     //make data structure for Squares with values yCoor,xCoor,cost,value,pathProfit.
@@ -292,10 +334,11 @@ public class Sheep extends UzhShortNameCreature {
             this.xCoor = xCoor;
             this.yCoor = yCoor;
             this.distance = distance;
-            this.value=value;
-            this.pathProfit=pathProfit;
+            this.value = value;
+            this.pathProfit = pathProfit;
         }
     }
+
     protected String getStringCoordinate(Square square, int yShift, int xShift) {
         return Integer.toString(square.yCoor + yShift) + "_" + Integer.toString(square.xCoor + xShift);
     }
