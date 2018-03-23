@@ -18,6 +18,10 @@ public class Sheep extends UzhShortNameCreature {
     private final int MAXDISTANCE = 5;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
     ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
     private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
+    boolean thereIsAValue;
+    ArrayList<Square> suqaresToExpandInSearchForPath;
+    Square maxPathProfitSquare;
+    int maxPathProfit;
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -54,6 +58,9 @@ public class Sheep extends UzhShortNameCreature {
         squareInitializeExpandQueue = new ArrayList<>();
         allInitializedSquares = new ArrayList<>();
         mapWithValues = new HashMap<>();
+        thereIsAValue = false;
+        suqaresToExpandInSearchForPath = new ArrayList<>();
+        maxPathProfit = -999999999;
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
         mySheep = map[this.y][this.x];
@@ -72,7 +79,7 @@ public class Sheep extends UzhShortNameCreature {
         System.out.println(enemySheep);
 
         //Create root square where sheep is in for initialization
-        Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0);
+        Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false);
 
         //add this root square to the expansion queue for initialization
         squareInitializeExpandQueue.add(sheep);
@@ -122,14 +129,64 @@ public class Sheep extends UzhShortNameCreature {
                 if (mapWithValues.containsKey(getStringCoordinate(square, 1, 0))) {
                     mapWithValues.get(getStringCoordinate(square, 1, 0)).value = -999;
                 }
-
             }
         }
 
         System.out.println(mapWithValues);
         System.out.println("test");
+        //what are those distances?
+        //TODO check distances. Check logic of distance giving
 
         //now the search path
+        //search for the square with the highest distance value and the highest pathProfit (carful: not all squares have pathProfits yet since we are assigning them in this iteration.
+        //search first for the squares with existing pathProfit
+        //from them, choose the one with the highest distance and the highest pathProfit. choose what happens if there are multiple that have same (random or systematic continuing?)
+        //assign the neighboring suqares a pathProfit
+        //rinse and repeat (the rinse here is a joke. just repeat)
+        //should we stop once we reach a max distance square? since it always chose the one with the highest profit
+        //set expandedForSearchPath true if already expanded, overwrite to false if that square's pathProfit gets overwritten since we found a better path to that square and it will change adjustent squares
+        //expand from sheep always square with highest pathProfit unless already expanded
+
+
+        //ok. so expand from the root always the one with the highest pathProfit. set flag if expanded to true. if pathValue of a square changes change the flag to false since we found another way.
+        //when expand store in the move array of that square. append to the movearray of the original square. new pathvalue is originalsquarepathvalue-1+valueofnewsquare.
+        //take the allInitializedSquares Array. Iterate and search who has pathValue. then scan for the ones who are not expanded yet. if all are valued and expanded you are done.
+        //our goals is then to find the square with the highest pathvalue and highest distance (so use addition. distance+pathvprofit) and then execute the movementarray
+
+        //first step: search in array for the ones that have a pathprofit
+        //kick out those that were already expanded
+        //take the one remaining with the highest pathprofit and expand
+
+        //if there is no value greater than 0 in the initilaized squares array, it doesnt matter which path we take. we then need to extend the initialization and just go to the objective since lots of time passed till we found one
+        //if we find no value greater than 0, we just flee the enemy wolf
+        //iterating thorugh arraylist is faster than hashmap
+        for (Square square : allInitializedSquares) {
+            if (square.value > 0) {
+                thereIsAValue = true;
+                break;
+            }
+        }
+
+        //build the arraylist of squares to expand. we want to expand those that have a valid assigned pathProfit (not 999) and have not been expanded yet / where the flag is false (when they get overwritten in the process we change the flag again see other comments in this file haha :P so much what am i doing
+        if (thereIsAValue) {
+            for (Square square : allInitializedSquares) {
+                if (square.pathProfit != 999 && !square.expandedForSearchPath) {
+                    suqaresToExpandInSearchForPath.add(square);
+                }
+            }
+        }
+
+        //find the square with the highest pathprofit to expan
+        for (Square square : suqaresToExpandInSearchForPath) {
+            if (square.pathProfit >= maxPathProfit) {
+                maxPathProfitSquare = square;
+            }
+        }
+
+        //expand this highest pathProfit Square. first upsqaure.
+        if (mapWithValues.containsKey(getStringCoordinate(square, -1, 0))) {
+            mapWithValues.get(getStringCoordinate(square, -1, 0)).value = -999;
+        }
 
 
         //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
@@ -171,7 +228,7 @@ public class Sheep extends UzhShortNameCreature {
                 if (mapWithValues.containsKey(getStringCoordinate(origin, -1, 0))) {
                 } else {
                     //create square up and assign distance
-                    Square upsquare = new Square(map[yPos - 1][xPos], origin.xCoor, origin.yCoor - 1, origin.distance + 1, 0, 0);
+                    Square upsquare = new Square(map[yPos - 1][xPos], origin.xCoor, origin.yCoor - 1, origin.distance + 1, 0, 999, false);
                     //assign value to upsquare
                     if (upsquare.type.equals(Type.EMPTY)) {
                         upsquare.value = 0;
@@ -208,7 +265,7 @@ public class Sheep extends UzhShortNameCreature {
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, 1))) {
                 } else {
                     //TODO check if this exists already in the Hashmap
-                    Square rightsquare = new Square(map[yPos][xPos + 1], origin.xCoor + 1, origin.yCoor, origin.distance + 1, 0, 0);
+                    Square rightsquare = new Square(map[yPos][xPos + 1], origin.xCoor + 1, origin.yCoor, origin.distance + 1, 0, 999, false);
                     if (rightsquare.type.equals(Type.EMPTY)) {
                         rightsquare.value = 0;
                     } else if (rightsquare.type.equals(Type.GRASS)) {
@@ -243,7 +300,7 @@ public class Sheep extends UzhShortNameCreature {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, -1))) {
                 } else {
-                    Square leftsquare = new Square(map[yPos][xPos - 1], origin.xCoor - 1, origin.yCoor, origin.distance + 1, 0, 0);
+                    Square leftsquare = new Square(map[yPos][xPos - 1], origin.xCoor - 1, origin.yCoor, origin.distance + 1, 0, 999, false);
                     if (leftsquare.type.equals(Type.EMPTY)) {
                         leftsquare.value = 0;
                     } else if (leftsquare.type.equals(Type.GRASS)) {
@@ -279,7 +336,7 @@ public class Sheep extends UzhShortNameCreature {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 1, 1))) {
                 } else {
-                    Square downsquare = new Square(map[yPos + 1][xPos], origin.xCoor, origin.yCoor + 1, origin.distance + 1, 0, 0);
+                    Square downsquare = new Square(map[yPos + 1][xPos], origin.xCoor, origin.yCoor + 1, origin.distance + 1, 0, 999, false);
                     if (downsquare.type.equals(Type.EMPTY)) {
                         downsquare.value = 0;
                     } else if (downsquare.type.equals(Type.GRASS)) {
@@ -328,14 +385,16 @@ public class Sheep extends UzhShortNameCreature {
     private class Square {
         private Type type;
         private int yCoor, xCoor, distance, value, pathProfit;
+        private boolean expandedForSearchPath;
 
-        private Square(Type type, int xCoor, int yCoor, int distance, int value, int pathProfit) {
+        private Square(Type type, int xCoor, int yCoor, int distance, int value, int pathProfit, boolean expandedForsearchPath) {
             this.type = type;
             this.xCoor = xCoor;
             this.yCoor = yCoor;
             this.distance = distance;
             this.value = value;
             this.pathProfit = pathProfit;
+            this.expandedForSearchPath = expandedForSearchPath;
         }
     }
 
