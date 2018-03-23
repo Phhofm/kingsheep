@@ -81,8 +81,12 @@ public class Sheep extends UzhShortNameCreature {
         //Create root square where sheep is in for initialization
         Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false);
 
+
         //add this root square to the expansion queue for initialization
         squareInitializeExpandQueue.add(sheep);
+
+        //we can already insert this root sheep into the hashmap
+        mapWithValues.put(getStringCoordinate(sheep,0,0),sheep);
 
         //add also for later searching for enemy wolf in initialized squares
         allInitializedSquares.add(sheep);
@@ -184,9 +188,39 @@ public class Sheep extends UzhShortNameCreature {
         }
 
         //expand this highest pathProfit Square. first upsqaure.
-        if (mapWithValues.containsKey(getStringCoordinate(square, -1, 0))) {
-            mapWithValues.get(getStringCoordinate(square, -1, 0)).value = -999;
+        if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, -1, 0))) {
+            Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, -1, 0));
+            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
         }
+        //leftsquare
+        if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, -1))) {
+            Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, -1));
+            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
+        }
+        //rightsquare
+        if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, 1))) {
+            Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, 1));
+            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
+        }
+        //downsquare
+        if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 1, 0))) {
+            Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 1, 0));
+            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
+        }
+        //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
+        maxPathProfitSquare.expandedForSearchPath=true;
+
+        System.out.println(mapWithValues);
+        System.out.println("test");
+
+
+        //TODO implement the moves into the squares so i can actually move after i found the desires square
+        //rinse and repeat
+
+        //find the square with the highest pathProfit and the highest distance
+
+        //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
+
 
 
         //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
