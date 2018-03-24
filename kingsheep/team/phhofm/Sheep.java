@@ -21,6 +21,7 @@ public class Sheep extends UzhShortNameCreature {
     int maxPathProfit;
     Square goalSquare;
     int goalSquarePathProfitDistance;
+    ArrayList<Move> noMoves = new ArrayList<Move>();
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -45,7 +46,7 @@ public class Sheep extends UzhShortNameCreature {
         move = Move.RIGHT;
         move = Move.WAIT;
 		*/
-        move = Move.LEFT; //provided by exercise
+        //move = Move.LEFT; //provided by exercise
         //System.out.println(map[3][9].name());  //prints out RHUBARB or EMPTY or SHEEP2 etc
         System.out.println("x " + this.x);
         System.out.println("y " + this.y);
@@ -78,17 +79,16 @@ public class Sheep extends UzhShortNameCreature {
         System.out.println(enemySheep);
 
         //Create root square where sheep is in for initialization
-        Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false);
+        Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false, noMoves);
 
         //set this as initial goalSquare
         goalSquare = sheep;
-
 
         //add this root square to the expansion queue for initialization
         squareInitializeExpandQueue.add(sheep);
 
         //we can already insert this root sheep into the hashmap
-        mapWithValues.put(getStringCoordinate(sheep,0,0),sheep);
+        mapWithValues.put(getStringCoordinate(sheep, 0, 0), sheep);
 
         //add also for later searching for enemy wolf in initialized squares
         allInitializedSquares.add(sheep);
@@ -191,26 +191,37 @@ public class Sheep extends UzhShortNameCreature {
 
         //expand this highest pathProfit Square. first upsqaure.
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, -1, 0))) {
+            //get the upsquare
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, -1, 0));
-            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
+            //assign the pathprofit to the upsquare
+            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+            //store also the moves for that square how to reach it
+            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            square.sheepGotTheMovesLikeJagger.add(Move.UP);
         }
         //leftsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, -1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, -1));
-            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
+            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            square.sheepGotTheMovesLikeJagger.add(Move.LEFT);
         }
         //rightsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, 1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, 1));
-            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
+            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            square.sheepGotTheMovesLikeJagger.add(Move.RIGHT);
         }
         //downsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 1, 0))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 1, 0));
-            square.pathProfit = maxPathProfitSquare.pathProfit-1+square.value;
+            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            square.sheepGotTheMovesLikeJagger.add(Move.DOWN);
         }
         //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
-        maxPathProfitSquare.expandedForSearchPath=true;
+        maxPathProfitSquare.expandedForSearchPath = true;
 
         System.out.println(mapWithValues);
         System.out.println("test");
@@ -221,20 +232,28 @@ public class Sheep extends UzhShortNameCreature {
 
         //find the square with the highest pathProfit and the highest distance
         Set<String> keys = mapWithValues.keySet();
-        for(String  key: keys){
+        for (String key : keys) {
             Square square = mapWithValues.get(key);
             //if(square.pathProfit>=goalSquare.pathProfit && square.distance >= ) //remember sheep square has pathProfit 0 and from then on each step invokes a penalty. So sheep square is likely to have highest global pathProfit and that would mean our sheep stays in place, this is not desired behavior.
-            int currentPathProfitDistanceValue = square.pathProfit+square.distance;
-            if(currentPathProfitDistanceValue>=goalSquarePathProfitDistance){
+            int currentPathProfitDistanceValue = square.pathProfit + square.distance;
+            if (currentPathProfitDistanceValue >= goalSquarePathProfitDistance) {
                 goalSquare = square;
-                goalSquarePathProfitDistance = goalSquare.pathProfit+goalSquare.distance;
+                goalSquarePathProfitDistance = goalSquare.pathProfit + goalSquare.distance;
             }
         }
 
 
         //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
         System.out.println(goalSquare);
+        System.out.println(goalSquare.sheepGotTheMovesLikeJagger);
+        System.out.println("test");
+        //moveLikeJagger(goalSquare);
 
+        if (goalSquare.sheepGotTheMovesLikeJagger.isEmpty()) {
+            move = Move.WAIT;
+        } else {
+            move = goalSquare.sheepGotTheMovesLikeJagger.get(0);
+        }
 
 
         //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
@@ -276,7 +295,7 @@ public class Sheep extends UzhShortNameCreature {
                 if (mapWithValues.containsKey(getStringCoordinate(origin, -1, 0))) {
                 } else {
                     //create square up and assign distance
-                    Square upsquare = new Square(map[yPos - 1][xPos], origin.xCoor, origin.yCoor - 1, origin.distance + 1, 0, 999, false);
+                    Square upsquare = new Square(map[yPos - 1][xPos], origin.xCoor, origin.yCoor - 1, origin.distance + 1, 0, 999, false, noMoves);
                     //assign value to upsquare
                     if (upsquare.type.equals(Type.EMPTY)) {
                         upsquare.value = 0;
@@ -313,7 +332,7 @@ public class Sheep extends UzhShortNameCreature {
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, 1))) {
                 } else {
                     //TODO check if this exists already in the Hashmap
-                    Square rightsquare = new Square(map[yPos][xPos + 1], origin.xCoor + 1, origin.yCoor, origin.distance + 1, 0, 999, false);
+                    Square rightsquare = new Square(map[yPos][xPos + 1], origin.xCoor + 1, origin.yCoor, origin.distance + 1, 0, 999, false, noMoves);
                     if (rightsquare.type.equals(Type.EMPTY)) {
                         rightsquare.value = 0;
                     } else if (rightsquare.type.equals(Type.GRASS)) {
@@ -348,7 +367,7 @@ public class Sheep extends UzhShortNameCreature {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, -1))) {
                 } else {
-                    Square leftsquare = new Square(map[yPos][xPos - 1], origin.xCoor - 1, origin.yCoor, origin.distance + 1, 0, 999, false);
+                    Square leftsquare = new Square(map[yPos][xPos - 1], origin.xCoor - 1, origin.yCoor, origin.distance + 1, 0, 999, false, noMoves);
                     if (leftsquare.type.equals(Type.EMPTY)) {
                         leftsquare.value = 0;
                     } else if (leftsquare.type.equals(Type.GRASS)) {
@@ -384,7 +403,7 @@ public class Sheep extends UzhShortNameCreature {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 1, 1))) {
                 } else {
-                    Square downsquare = new Square(map[yPos + 1][xPos], origin.xCoor, origin.yCoor + 1, origin.distance + 1, 0, 999, false);
+                    Square downsquare = new Square(map[yPos + 1][xPos], origin.xCoor, origin.yCoor + 1, origin.distance + 1, 0, 999, false, noMoves);
                     if (downsquare.type.equals(Type.EMPTY)) {
                         downsquare.value = 0;
                     } else if (downsquare.type.equals(Type.GRASS)) {
@@ -434,8 +453,9 @@ public class Sheep extends UzhShortNameCreature {
         private Type type;
         private int yCoor, xCoor, distance, value, pathProfit;
         private boolean expandedForSearchPath;
+        private ArrayList<Move> sheepGotTheMovesLikeJagger;
 
-        private Square(Type type, int xCoor, int yCoor, int distance, int value, int pathProfit, boolean expandedForsearchPath) {
+        private Square(Type type, int xCoor, int yCoor, int distance, int value, int pathProfit, boolean expandedForsearchPath, ArrayList<Move> sheepGotTheMovesLikeJagger) {
             this.type = type;
             this.xCoor = xCoor;
             this.yCoor = yCoor;
@@ -443,6 +463,7 @@ public class Sheep extends UzhShortNameCreature {
             this.value = value;
             this.pathProfit = pathProfit;
             this.expandedForSearchPath = expandedForSearchPath;
+            this.sheepGotTheMovesLikeJagger = sheepGotTheMovesLikeJagger;
         }
     }
 
