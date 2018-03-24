@@ -2,10 +2,7 @@ package kingsheep.team.phhofm;
 
 import kingsheep.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.ListIterator;
+import java.util.*;
 
 public class Sheep extends UzhShortNameCreature {
 
@@ -22,6 +19,8 @@ public class Sheep extends UzhShortNameCreature {
     ArrayList<Square> suqaresToExpandInSearchForPath;
     Square maxPathProfitSquare;
     int maxPathProfit;
+    Square goalSquare;
+    int goalSquarePathProfitDistance;
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -80,6 +79,9 @@ public class Sheep extends UzhShortNameCreature {
 
         //Create root square where sheep is in for initialization
         Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false);
+
+        //set this as initial goalSquare
+        goalSquare = sheep;
 
 
         //add this root square to the expansion queue for initialization
@@ -218,8 +220,20 @@ public class Sheep extends UzhShortNameCreature {
         //rinse and repeat
 
         //find the square with the highest pathProfit and the highest distance
+        Set<String> keys = mapWithValues.keySet();
+        for(String  key: keys){
+            Square square = mapWithValues.get(key);
+            //if(square.pathProfit>=goalSquare.pathProfit && square.distance >= ) //remember sheep square has pathProfit 0 and from then on each step invokes a penalty. So sheep square is likely to have highest global pathProfit and that would mean our sheep stays in place, this is not desired behavior.
+            int currentPathProfitDistanceValue = square.pathProfit+square.distance;
+            if(currentPathProfitDistanceValue>=goalSquarePathProfitDistance){
+                goalSquare = square;
+                goalSquarePathProfitDistance = goalSquare.pathProfit+goalSquare.distance;
+            }
+        }
+
 
         //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
+        System.out.println(goalSquare);
 
 
 
