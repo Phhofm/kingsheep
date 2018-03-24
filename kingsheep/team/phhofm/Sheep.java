@@ -186,6 +186,7 @@ public class Sheep extends UzhShortNameCreature {
         for (Square square : suqaresToExpandInSearchForPath) {
             if (square.pathProfit >= maxPathProfit) {
                 maxPathProfitSquare = square;
+                maxPathProfit = square.pathProfit;
             }
         }
 
@@ -196,28 +197,29 @@ public class Sheep extends UzhShortNameCreature {
             //assign the pathprofit to the upsquare
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
             //store also the moves for that square how to reach it
-            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+            //square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger; this is bad. they both reference to the same object afterwards and owuld change the arraylist of the origin square too
             square.sheepGotTheMovesLikeJagger.add(Move.UP);
         }
         //leftsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, -1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, -1));
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
             square.sheepGotTheMovesLikeJagger.add(Move.LEFT);
         }
         //rightsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, 1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, 1));
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
             square.sheepGotTheMovesLikeJagger.add(Move.RIGHT);
         }
         //downsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 1, 0))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 1, 0));
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger;
+            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
             square.sheepGotTheMovesLikeJagger.add(Move.DOWN);
         }
         //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
