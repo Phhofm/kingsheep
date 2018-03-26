@@ -12,7 +12,7 @@ public class Sheep extends UzhShortNameCreature {
     private Type myWolf;
     private Type enemySheep;
     private Type enemyWolf;
-    private final int MAXDISTANCE = 5;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
+    private final int MAXDISTANCE = 6;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
     ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
     private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
     boolean thereIsAValue;
@@ -30,37 +30,13 @@ public class Sheep extends UzhShortNameCreature {
 
     //original
     protected void think(Type map[][]) {
-        /*
-        TODO
-		YOUR SHEEP CODE HERE
-
-		BASE YOUR LOGIC ON THE INFORMATION FROM THE ARGUMENT map[][]
-
-		YOUR CODE NEED TO BE DETERMINISTIC.
-		THAT MEANS, GIVEN A DETERMINISTIC OPPONENT AND MAP THE ACTIONS OF YOUR SHEEP HAVE TO BE REPRODUCIBLE
-
-		SET THE MOVE VARIABLE TO ONE TOF THE 5 VALUES
-        move = Move.UP;
-        move = Move.DOWN;
-        move = Move.LEFT;
-        move = Move.RIGHT;
-        move = Move.WAIT;
-		*/
-        //move = Move.LEFT; //provided by exercise
-        //System.out.println(map[3][9].name());  //prints out RHUBARB or EMPTY or SHEEP2 etc
-        System.out.println("x " + this.x);
-        System.out.println("y " + this.y);
-        System.out.println(map[this.y][this.x].name());   //position of sheep is y,x
-        System.out.println(map[14][18]); //this is the outmost square. no greater values or we have out of bounds
-
-
-        //initialize used variables
-        squareInitializeExpandQueue = new ArrayList<>();
-        allInitializedSquares = new ArrayList<>();
-        mapWithValues = new HashMap<>();
-        thereIsAValue = false;
-        suqaresToExpandInSearchForPath = new ArrayList<>();
-        maxPathProfit = -999999999;
+        //initialize variables
+        squareInitializeExpandQueue = new ArrayList<>();    //queue with squares we can expand for the initialization (squares added to mapWithValues but have no pathprofit yet (=999)
+        allInitializedSquares = new ArrayList<>();          //arraylist with all initialized squares to maxdistance
+        mapWithValues = new HashMap<>();                    //extended map with additional values that i need
+        thereIsAValue = false;                              //check if there is food. otherwise just escape wolf
+        suqaresToExpandInSearchForPath = new ArrayList<>(); //this is a queue which squares can be extended for pathProfit (need to be initialized and have their own pathprofit already assigned
+        maxPathProfit = -999999999;                         //this is super low so we can find the desitred square at the end
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
         mySheep = map[this.y][this.x];
@@ -75,12 +51,10 @@ public class Sheep extends UzhShortNameCreature {
             enemyWolf = Type.WOLF1;
         }
 
-        System.out.println(mySheep);
-        System.out.println(enemySheep);
-
         //Create root square where sheep is in for initialization
         Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false, noMoves);
 
+        //TODO WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
         //set this as initial goalSquare
         goalSquare = sheep;
 
@@ -90,29 +64,20 @@ public class Sheep extends UzhShortNameCreature {
         //we can already insert this root sheep into the hashmap
         mapWithValues.put(getStringCoordinate(sheep, 0, 0), sheep);
 
+        //TODO DO WE NEED THIS SEPARATE ARRAYLIST
         //add also for later searching for enemy wolf in initialized squares
         allInitializedSquares.add(sheep);
 
-
+        //make iterator since we modify the arraylist while traversing it. we would get a concurrentModificationException otherwise
         initializeIter = squareInitializeExpandQueue.listIterator();
 
+        //initialize hashmap until maxdistance. give every square the distance and the value according to type. fill in standard pathprofit since not known yet
         while (initializeIter.hasNext()) {
             Square square = initializeIter.next();
             initializeIter.remove();
             initializeMapWithValues(square, square.yCoor, square.xCoor, map);
             initializeIter = squareInitializeExpandQueue.listIterator();
         }
-
-        System.out.println(initializeIter.hasNext());
-        System.out.println(initializeIter);
-        //initialize map till Maxdistance: give them distances to sheep and values
-        //this will give a concurrentmodificationexception since we add/revome elements while iterating
-        // for(Square square: squareInitializeExpandQueue){
-        //   initializeMapWithValues(square,square.yCoor,square.xCoor,map);
-        //  }
-
-        System.out.println(mapWithValues);
-        System.out.println("test");
 
         //search for enemy wolf and give adjustent squares the value of -999 so we will never move right next to the enemy wolf to be eaten. Be eaten is the WORST CASE. This method has been tested with myWolf.
         //TODO set like variable with wolfIsPresent and include in other loop so we dont need to loop thorugh whole array again (optimization)
@@ -139,8 +104,6 @@ public class Sheep extends UzhShortNameCreature {
             }
         }
 
-        System.out.println(mapWithValues);
-        System.out.println("test");
         //what are those distances?
         //TODO check distances. Check logic of distance giving
 
@@ -175,15 +138,12 @@ public class Sheep extends UzhShortNameCreature {
         }
         //TODO implement what happens if there is no value.
         if (!thereIsAValue) {
-            //there is no value
+            System.out.println("Sheep found no value");
         } else {
-
+            for (int i = 0; i < 5; i++) {
+                pathing();
+            }
         }
-
-        for(int i = 0; i<3; i++) {
-            pathing();
-        }
-
 
         //TODO implement the moves into the squares so i can actually move after i found the desires square
         //rinse and repeat
@@ -206,16 +166,15 @@ public class Sheep extends UzhShortNameCreature {
 
 
         //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
-        System.out.println(goalSquare);
-        System.out.println(goalSquare.sheepGotTheMovesLikeJagger);
-        System.out.println("test");
         //moveLikeJagger(goalSquare);
 
+        System.out.println(mapWithValues);
         if (goalSquare.sheepGotTheMovesLikeJagger.isEmpty()) {
             move = Move.WAIT;
         } else {
             move = goalSquare.sheepGotTheMovesLikeJagger.get(0);
         }
+        //TODO DISTANCE IS WRONG OF 1_4 square
 
 
         //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
@@ -311,9 +270,6 @@ public class Sheep extends UzhShortNameCreature {
         }
         //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
         maxPathProfitSquare.expandedForSearchPath = true;
-
-        System.out.println(mapWithValues);
-        System.out.println("test");
     }
 
     private void initializeMapWithValues(Square origin, int yPos, int xPos, Type map[][]) {
