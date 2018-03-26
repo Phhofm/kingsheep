@@ -115,6 +115,7 @@ public class Sheep extends UzhShortNameCreature {
         System.out.println("test");
 
         //search for enemy wolf and give adjustent squares the value of -999 so we will never move right next to the enemy wolf to be eaten. Be eaten is the WORST CASE. This method has been tested with myWolf.
+        //TODO set like variable with wolfIsPresent and include in other loop so we dont need to loop thorugh whole array again (optimization)
         for (Square square : allInitializedSquares) {
             if (square.type != null && square.type.equals(enemyWolf)) {
 
@@ -172,6 +173,7 @@ public class Sheep extends UzhShortNameCreature {
                 break;
             }
         }
+        //TODO implement what happens if there is no value.
 
         //build the arraylist of squares to expand. we want to expand those that have a valid assigned pathProfit (not 999) and have not been expanded yet / where the flag is false (when they get overwritten in the process we change the flag again see other comments in this file haha :P so much what am i doing
         if (thereIsAValue) {
@@ -195,32 +197,46 @@ public class Sheep extends UzhShortNameCreature {
             //get the upsquare
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, -1, 0));
             //assign the pathprofit to the upsquare
-            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;  //this is correct
             //store also the moves for that square how to reach it
-            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+            ArrayList<Move> temp= new ArrayList<>();
+            Collections.copy(temp, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+            temp.add(Move.UP);
+            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+            square.sheepGotTheMovesLikeJagger.addAll(temp);
+            //Collections.copy(square.sheepGotTheMovesLikeJagger, temp); //ERROR java.lang.IndexOutOfBoundsException: Source dows not fit in dest
             //square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger; this is bad. they both reference to the same object afterwards and owuld change the arraylist of the origin square too
-            square.sheepGotTheMovesLikeJagger.add(Move.UP);
+            //square.sheepGotTheMovesLikeJagger.add(Move.UP); //it breaks here! Sheep gets move up storey in array, as does maxprofitsquare, as does upsquare. is it linked, does it point to the same store location?
         }
         //leftsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, -1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, -1));
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
-            square.sheepGotTheMovesLikeJagger.add(Move.LEFT);
+            ArrayList<Move> temp= new ArrayList<>();
+            Collections.copy(temp, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+            temp.add(Move.LEFT);
+            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+            square.sheepGotTheMovesLikeJagger.addAll(temp);
         }
         //rightsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, 1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, 1));
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
-            square.sheepGotTheMovesLikeJagger.add(Move.RIGHT);
+            ArrayList<Move> temp= new ArrayList<>();
+            Collections.copy(temp, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+            temp.add(Move.RIGHT);
+            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+            square.sheepGotTheMovesLikeJagger.addAll(temp);
         }
         //downsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 1, 0))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 1, 0));
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            Collections.copy(square.sheepGotTheMovesLikeJagger, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
-            square.sheepGotTheMovesLikeJagger.add(Move.DOWN);
+            ArrayList<Move> temp= new ArrayList<>();
+            Collections.copy(temp, maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+            temp.add(Move.DOWN);
+            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+            square.sheepGotTheMovesLikeJagger.addAll(temp);
         }
         //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
         maxPathProfitSquare.expandedForSearchPath = true;
@@ -237,10 +253,14 @@ public class Sheep extends UzhShortNameCreature {
         for (String key : keys) {
             Square square = mapWithValues.get(key);
             //if(square.pathProfit>=goalSquare.pathProfit && square.distance >= ) //remember sheep square has pathProfit 0 and from then on each step invokes a penalty. So sheep square is likely to have highest global pathProfit and that would mean our sheep stays in place, this is not desired behavior.
-            int currentPathProfitDistanceValue = square.pathProfit + square.distance;
-            if (currentPathProfitDistanceValue >= goalSquarePathProfitDistance) {
-                goalSquare = square;
-                goalSquarePathProfitDistance = goalSquare.pathProfit + goalSquare.distance;
+            if(square.pathProfit==999){
+                //pathprofit was not processed yet of this square so ignore otherwise we will get some arbitrary not processed square
+            } else {
+                int currentPathProfitDistanceValue = square.pathProfit + square.distance;
+                if (currentPathProfitDistanceValue >= goalSquarePathProfitDistance) {
+                    goalSquare = square;
+                    goalSquarePathProfitDistance = goalSquare.pathProfit + goalSquare.distance;
+                }
             }
         }
 
