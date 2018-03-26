@@ -4,6 +4,8 @@ import kingsheep.*;
 
 import java.util.*;
 
+import static java.lang.System.*;
+
 public class Sheep extends UzhShortNameCreature {
 
     private HashMap<String, Square> mapWithValues;  //our hashmap for extended map, meaning squares with values
@@ -73,7 +75,9 @@ public class Sheep extends UzhShortNameCreature {
 
         //initialize hashmap until maxdistance. give every square the distance and the value according to type. fill in standard pathprofit since not known yet
         while (initializeIter.hasNext()) {
+            //take next square and temp store it
             Square square = initializeIter.next();
+            //remove this square from the iterator since we are processing it now
             initializeIter.remove();
             initializeMapWithValues(square, square.yCoor, square.xCoor, map);
             initializeIter = squareInitializeExpandQueue.listIterator();
@@ -138,7 +142,7 @@ public class Sheep extends UzhShortNameCreature {
         }
         //TODO implement what happens if there is no value.
         if (!thereIsAValue) {
-            System.out.println("Sheep found no value");
+            out.println("Sheep found no value");
         } else {
             for (int i = 0; i < 5; i++) {
                 pathing();
@@ -168,7 +172,7 @@ public class Sheep extends UzhShortNameCreature {
         //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
         //moveLikeJagger(goalSquare);
 
-        System.out.println(mapWithValues);
+        out.println(mapWithValues);
         if (goalSquare.sheepGotTheMovesLikeJagger.isEmpty()) {
             move = Move.WAIT;
         } else {
