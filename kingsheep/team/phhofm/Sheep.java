@@ -24,6 +24,8 @@ public class Sheep extends UzhShortNameCreature {
     Square goalSquare;
     int goalSquarePathProfitDistance;
     ArrayList<Move> noMoves = new ArrayList<Move>();
+    Square enemyWolfSquare;
+    Boolean thereIsEnemyWolf;
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -39,6 +41,7 @@ public class Sheep extends UzhShortNameCreature {
         thereIsAValue = false;                              //check if there is food. otherwise just escape wolf
         suqaresToExpandInSearchForPath = new ArrayList<>(); //this is a queue which squares can be extended for pathProfit (need to be initialized and have their own pathprofit already assigned
         maxPathProfit = -999999999;                         //this is super low so we can find the desitred square at the end
+        thereIsEnemyWolf = false;
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
         mySheep = map[this.y][this.x];
@@ -79,12 +82,35 @@ public class Sheep extends UzhShortNameCreature {
             Square square = initializeIter.next();
             //remove this square from the iterator since we are processing it now
             initializeIter.remove();
+            //initialization method
             initializeMapWithValues(square, square.yCoor, square.xCoor, map);
-            initializeIter = squareInitializeExpandQueue.listIterator();
+            //assign new before we iterate over again
+            //initializeIter = squareInitializeExpandQueue.listIterator();
+            System.out.println(initializeIter);
         }
 
         //search for enemy wolf and give adjustent squares the value of -999 so we will never move right next to the enemy wolf to be eaten. Be eaten is the WORST CASE. This method has been tested with myWolf.
         //TODO set like variable with wolfIsPresent and include in other loop so we dont need to loop thorugh whole array again (optimization)
+        if(thereIsEnemyWolf){
+            //give adjustent squares value -999 if they exist
+            //up
+            if (mapWithValues.containsKey(getStringCoordinate(enemyWolfSquare, -1, 0))) {
+                mapWithValues.get(getStringCoordinate(enemyWolfSquare, -1, 0)).value = -999;
+            }
+            //left
+            if (mapWithValues.containsKey(getStringCoordinate(enemyWolfSquare, 0, -1))) {
+                mapWithValues.get(getStringCoordinate(enemyWolfSquare, 0, -1)).value = -999;
+            }
+            //right
+            if (mapWithValues.containsKey(getStringCoordinate(enemyWolfSquare, 0, 1))) {
+                mapWithValues.get(getStringCoordinate(enemyWolfSquare, 0, 1)).value = -999;
+            }
+            //down
+            if (mapWithValues.containsKey(getStringCoordinate(enemyWolfSquare, 1, 0))) {
+                mapWithValues.get(getStringCoordinate(enemyWolfSquare, 1, 0)).value = -999;
+            }
+        }
+        /*
         for (Square square : allInitializedSquares) {
             if (square.type != null && square.type.equals(enemyWolf)) {
 
@@ -107,6 +133,7 @@ public class Sheep extends UzhShortNameCreature {
                 }
             }
         }
+        */
 
         //what are those distances?
         //TODO check distances. Check logic of distance giving
@@ -218,7 +245,7 @@ public class Sheep extends UzhShortNameCreature {
             }
         }
 
-        //find the square with the highest pathprofit to expan
+        //find the square with the highest pathprofit to expand
         for (Square square : suqaresToExpandInSearchForPath) {
             if (square.pathProfit >= maxPathProfit) {
                 maxPathProfitSquare = square;
@@ -276,6 +303,7 @@ public class Sheep extends UzhShortNameCreature {
         maxPathProfitSquare.expandedForSearchPath = true;
     }
 
+    //This method adds all valid neighbor squares for initialization to the hashmap. It assigns the distance and the value, and gives the pathprofit 999 as spaceholder since it can never normally reach this value.
     private void initializeMapWithValues(Square origin, int yPos, int xPos, Type map[][]) {
         //Add all valid neighbour Squares
         try {
@@ -296,10 +324,12 @@ public class Sheep extends UzhShortNameCreature {
                         upsquare.value = 5;
                     } else if (upsquare.type.equals(Type.FENCE)) {
                         upsquare.value = -999;
-                    } else if (upsquare.type.equals(Type.WOLF1)) {
+                    } else if (upsquare.type.equals(myWolf)) {
                         upsquare.value = -999;
-                    } else if (upsquare.type.equals(Type.WOLF2)) {
+                    } else if (upsquare.type.equals(enemyWolf)) {
                         upsquare.value = -999;
+                        thereIsEnemyWolf = true;
+                        enemyWolfSquare = upsquare;
                     } else if (upsquare.type.equals(enemySheep)) {
                         upsquare.value = -999;
                     } else if (upsquare.type.equals(mySheep)) {
@@ -322,7 +352,6 @@ public class Sheep extends UzhShortNameCreature {
                 //checks if exists already in Hashmap
                 if (mapWithValues.containsKey(getStringCoordinate(origin, 0, 1))) {
                 } else {
-                    //TODO check if this exists already in the Hashmap
                     Square rightsquare = new Square(map[yPos][xPos + 1], origin.xCoor + 1, origin.yCoor, origin.distance + 1, 0, 999, false, noMoves);
                     if (rightsquare.type.equals(Type.EMPTY)) {
                         rightsquare.value = 0;
@@ -332,10 +361,12 @@ public class Sheep extends UzhShortNameCreature {
                         rightsquare.value = 5;
                     } else if (rightsquare.type.equals(Type.FENCE)) {
                         rightsquare.value = -999;
-                    } else if (rightsquare.type.equals(Type.WOLF1)) {
+                    } else if (rightsquare.type.equals(myWolf)) {
                         rightsquare.value = -999;
-                    } else if (rightsquare.type.equals(Type.WOLF2)) {
+                    } else if (rightsquare.type.equals(enemyWolf)) {
                         rightsquare.value = -999;
+                        thereIsEnemyWolf = true;
+                        enemyWolfSquare = rightsquare;
                     } else if (rightsquare.type.equals(enemySheep)) {
                         rightsquare.value = -999;
                     } else if (rightsquare.type.equals(mySheep)) {
@@ -367,10 +398,12 @@ public class Sheep extends UzhShortNameCreature {
                         leftsquare.value = 5;
                     } else if (leftsquare.type.equals(Type.FENCE)) {
                         leftsquare.value = -999;
-                    } else if (leftsquare.type.equals(Type.WOLF1)) {
+                    } else if (leftsquare.type.equals(myWolf)) {
                         leftsquare.value = -999;
-                    } else if (leftsquare.type.equals(Type.WOLF2)) {
+                    } else if (leftsquare.type.equals(enemyWolf)) {
                         leftsquare.value = -999;
+                        thereIsEnemyWolf = true;
+                        enemyWolfSquare = leftsquare;
                     } else if (leftsquare.type.equals(enemySheep)) {
                         leftsquare.value = -999;
                     } else if (leftsquare.type.equals(mySheep)) {
@@ -403,10 +436,12 @@ public class Sheep extends UzhShortNameCreature {
                         downsquare.value = 5;
                     } else if (downsquare.type.equals(Type.FENCE)) {
                         downsquare.value = -999;
-                    } else if (downsquare.type.equals(Type.WOLF1)) {
+                    } else if (downsquare.type.equals(myWolf)) {
                         downsquare.value = -999;
-                    } else if (downsquare.type.equals(Type.WOLF2)) {
+                    } else if (downsquare.type.equals(enemyWolf)) {
                         downsquare.value = -999;
+                        thereIsEnemyWolf = true;
+                        enemyWolfSquare = downsquare;
                     } else if (downsquare.type.equals(enemySheep)) {
                         downsquare.value = -999;
                     } else if (downsquare.type.equals(mySheep)) {
@@ -425,10 +460,6 @@ public class Sheep extends UzhShortNameCreature {
         } catch (ArrayIndexOutOfBoundsException e) {
             //do not add square since it is outside of the play board
         }
-
-        //add to the origin square that he has already been expanded
-
-
     }
 
 
