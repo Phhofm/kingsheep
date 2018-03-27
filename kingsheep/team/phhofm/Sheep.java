@@ -14,7 +14,7 @@ public class Sheep extends UzhShortNameCreature {
     private Type myWolf;
     private Type enemySheep;
     private Type enemyWolf;
-    private final int MAXDISTANCE = 5;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
+    private final int MAXDISTANCE = 8;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter. 8 till we reach rhubarb in original map
     ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
     private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
     boolean thereIsAValue;
@@ -136,7 +136,7 @@ public class Sheep extends UzhShortNameCreature {
                 }
             }
         } else {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 9; i++) {   //min 8 for reaching rhubarb in original map starting position
                 pathing();
             }
 
@@ -196,6 +196,7 @@ public class Sheep extends UzhShortNameCreature {
             expandSquareForPathing(maxPathProfitSquare);
         }
 
+        suqaresToExpandInSearchForPath = new ArrayList<>();
 
         //in other words, if one square we expand already exists, but we find a better way to it (higher pathprofit) we should unflag it because we can then expand it and reach neighboring squares maybe also with better path/pathprofit
     }
