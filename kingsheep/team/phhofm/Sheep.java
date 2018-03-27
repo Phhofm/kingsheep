@@ -26,6 +26,7 @@ public class Sheep extends UzhShortNameCreature {
     ArrayList<Move> noMoves = new ArrayList<Move>();
     Square enemyWolfSquare;
     Boolean thereIsEnemyWolf;
+    Square mySheepSquare;
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -59,6 +60,8 @@ public class Sheep extends UzhShortNameCreature {
         //Create root square where sheep is in for initialization
         Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false, noMoves);
 
+        mySheepSquare = sheep;
+
         //TODO WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
         //set this as initial goalSquare
         goalSquare = sheep;
@@ -89,7 +92,7 @@ public class Sheep extends UzhShortNameCreature {
         }
 
         //search for enemy wolf and give adjustent squares the value of -999 so we will never move right next to the enemy wolf to be eaten. Be eaten is the WORST CASE. This method has been tested with myWolf.
-        if(thereIsEnemyWolf){
+        if (thereIsEnemyWolf) {
             //give adjustent squares value -999 if they exist
             //up
             if (mapWithValues.containsKey(getStringCoordinate(enemyWolfSquare, -1, 0))) {
@@ -140,45 +143,55 @@ public class Sheep extends UzhShortNameCreature {
                 break;
             }
         }
-        //TODO implement what happens if there is no value.
+
         if (!thereIsAValue) {
             out.println("Sheep found no value");
+            if (thereIsEnemyWolf) {
+                if (enemyWolfSquare.yCoor > mySheepSquare.yCoor && mySheepSquare.yCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare,-1,0)).value!=-999) {
+                    move = Move.UP;
+                } else if(enemyWolfSquare.yCoor < mySheepSquare.yCoor && mySheepSquare.yCoor < 14 && mapWithValues.get(getStringCoordinate(mySheepSquare,+1,0)).value!=-999) {
+                    move=Move.DOWN;
+                } else if (enemyWolfSquare.xCoor > mySheepSquare.xCoor && mySheepSquare.xCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare,0,-1)).value!=-999) {
+                    move=Move.LEFT;
+                } else if (enemyWolfSquare.xCoor < mySheepSquare.xCoor && mySheepSquare.xCoor < 18 && mapWithValues.get(getStringCoordinate(mySheepSquare,0,+1)).value!=-999) {
+                    move=Move.RIGHT;
+                }
+            }
         } else {
             for (int i = 0; i < 2; i++) {
                 pathing();
             }
-        }
 
-        //TODO implement the moves into the squares so i can actually move after i found the desires square
-        //rinse and repeat
 
-        //find the square with the highest pathProfit and the highest distance
-        Set<String> keys = mapWithValues.keySet();
-        for (String key : keys) {
-            Square square = mapWithValues.get(key);
-            //if(square.pathProfit>=goalSquare.pathProfit && square.distance >= ) //remember sheep square has pathProfit 0 and from then on each step invokes a penalty. So sheep square is likely to have highest global pathProfit and that would mean our sheep stays in place, this is not desired behavior.
-            if (square.pathProfit == 999) {
-                //pathprofit was not processed yet of this square so ignore otherwise we will get some arbitrary not processed square
-            } else {
-                int currentPathProfitDistanceValue = square.pathProfit + square.distance;
-                if (currentPathProfitDistanceValue >= goalSquarePathProfitDistance) {
-                    goalSquare = square;
-                    goalSquarePathProfitDistance = goalSquare.pathProfit + goalSquare.distance;
+            //TODO implement the moves into the squares so i can actually move after i found the desires square
+            //rinse and repeat
+
+            //find the square with the highest pathProfit and the highest distance
+            Set<String> keys = mapWithValues.keySet();
+            for (String key : keys) {
+                Square square = mapWithValues.get(key);
+                //if(square.pathProfit>=goalSquare.pathProfit && square.distance >= ) //remember sheep square has pathProfit 0 and from then on each step invokes a penalty. So sheep square is likely to have highest global pathProfit and that would mean our sheep stays in place, this is not desired behavior.
+                if (square.pathProfit == 999) {
+                    //pathprofit was not processed yet of this square so ignore otherwise we will get some arbitrary not processed square
+                } else {
+                    int currentPathProfitDistanceValue = square.pathProfit + square.distance;
+                    if (currentPathProfitDistanceValue >= goalSquarePathProfitDistance) {
+                        goalSquare = square;
+                        goalSquarePathProfitDistance = goalSquare.pathProfit + goalSquare.distance;
+                    }
                 }
             }
+
+
+            //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
+            //moveLikeJagger(goalSquare);
+
+            if (goalSquare.sheepGotTheMovesLikeJagger.isEmpty()) {
+                move = Move.WAIT;
+            } else {
+                move = goalSquare.sheepGotTheMovesLikeJagger.get(0);
+            }
         }
-
-
-        //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
-        //moveLikeJagger(goalSquare);
-
-        out.println(mapWithValues);
-        if (goalSquare.sheepGotTheMovesLikeJagger.isEmpty()) {
-            move = Move.WAIT;
-        } else {
-            move = goalSquare.sheepGotTheMovesLikeJagger.get(0);
-        }
-        //TODO DISTANCE IS WRONG OF 1_4 square
 
 
         //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
