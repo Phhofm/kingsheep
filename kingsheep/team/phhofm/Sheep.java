@@ -159,10 +159,9 @@ public class Sheep extends UzhShortNameCreature {
             }
             //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
             //moveLikeJagger(goalSquare);
-            if (goalSquare.sheepGotTheMovesLikeJagger.isEmpty()) {
                 move = Move.WAIT;
             } else {
-                move = goalSquare.sheepGotTheMovesLikeJagger.get(0);
+                move = goalSquare.sheepGotTheMovesLikeJagger.get(0);    //first iteration: this outputs right, original array has size of 8. what happens now?
             }
         }
     }
