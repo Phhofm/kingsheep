@@ -14,7 +14,7 @@ public class Sheep extends UzhShortNameCreature {
     private Type myWolf;
     private Type enemySheep;
     private Type enemyWolf;
-    private final int MAXDISTANCE = 4;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
+    private final int MAXDISTANCE = 5;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
     ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
     private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
     boolean thereIsAValue;
@@ -62,7 +62,6 @@ public class Sheep extends UzhShortNameCreature {
 
         mySheepSquare = sheep;
 
-        //TODO WHYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
         //set this as initial goalSquare
         goalSquare = sheep;
 
@@ -72,7 +71,6 @@ public class Sheep extends UzhShortNameCreature {
         //we can already insert this root sheep into the hashmap
         mapWithValues.put(getStringCoordinate(sheep, 0, 0), sheep);
 
-        //TODO DO WE NEED THIS SEPARATE ARRAYLIST
         //add also for later searching for enemy wolf in initialized squares
         allInitializedSquares.add(sheep);
 
@@ -112,29 +110,7 @@ public class Sheep extends UzhShortNameCreature {
             }
         }
 
-        //now the search path
-        //search for the square with the highest distance value and the highest pathProfit (carful: not all squares have pathProfits yet since we are assigning them in this iteration.
-        //search first for the squares with existing pathProfit
-        //from them, choose the one with the highest distance and the highest pathProfit. choose what happens if there are multiple that have same (random or systematic continuing?)
-        //assign the neighboring suqares a pathProfit
-        //rinse and repeat (the rinse here is a joke. just repeat)
-        //should we stop once we reach a max distance square? since it always chose the one with the highest profit
-        //set expandedForSearchPath true if already expanded, overwrite to false if that square's pathProfit gets overwritten since we found a better path to that square and it will change adjustent squares
-        //expand from sheep always square with highest pathProfit unless already expanded
-
-
-        //ok. so expand from the root always the one with the highest pathProfit. set flag if expanded to true. if pathValue of a square changes change the flag to false since we found another way.
-        //when expand store in the move array of that square. append to the movearray of the original square. new pathvalue is originalsquarepathvalue-1+valueofnewsquare.
-        //take the allInitializedSquares Array. Iterate and search who has pathValue. then scan for the ones who are not expanded yet. if all are valued and expanded you are done.
-        //our goals is then to find the square with the highest pathvalue and highest distance (so use addition. distance+pathvprofit) and then execute the movementarray
-
-        //first step: search in array for the ones that have a pathprofit
-        //kick out those that were already expanded
-        //take the one remaining with the highest pathprofit and expand
-
-        //if there is no value greater than 0 in the initilaized squares array, it doesnt matter which path we take. we then need to extend the initialization and just go to the objective since lots of time passed till we found one
-        //if we find no value greater than 0, we just flee the enemy wolf
-        //iterating thorugh arraylist is faster than hashmap
+        //is there an eating objective? (or do we just want to flee wolf)
         for (Square square : allInitializedSquares) {
             if (square.value > 0) {
                 thereIsAValue = true;
@@ -147,18 +123,18 @@ public class Sheep extends UzhShortNameCreature {
         if (!thereIsAValue) {
             out.println("Sheep found no value");
             if (thereIsEnemyWolf) {
-                if (enemyWolfSquare.yCoor > mySheepSquare.yCoor && mySheepSquare.yCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare,-1,0)).value!=-999) {
+                if (enemyWolfSquare.yCoor > mySheepSquare.yCoor && mySheepSquare.yCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare, -1, 0)).value != -999) {
                     move = Move.UP;
-                } else if(enemyWolfSquare.yCoor < mySheepSquare.yCoor && mySheepSquare.yCoor < 14 && mapWithValues.get(getStringCoordinate(mySheepSquare,+1,0)).value!=-999) {
-                    move=Move.DOWN;
-                } else if (enemyWolfSquare.xCoor > mySheepSquare.xCoor && mySheepSquare.xCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare,0,-1)).value!=-999) {
-                    move=Move.LEFT;
-                } else if (enemyWolfSquare.xCoor < mySheepSquare.xCoor && mySheepSquare.xCoor < 18 && mapWithValues.get(getStringCoordinate(mySheepSquare,0,+1)).value!=-999) {
-                    move=Move.RIGHT;
+                } else if (enemyWolfSquare.yCoor < mySheepSquare.yCoor && mySheepSquare.yCoor < 14 && mapWithValues.get(getStringCoordinate(mySheepSquare, +1, 0)).value != -999) {
+                    move = Move.DOWN;
+                } else if (enemyWolfSquare.xCoor > mySheepSquare.xCoor && mySheepSquare.xCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare, 0, -1)).value != -999) {
+                    move = Move.LEFT;
+                } else if (enemyWolfSquare.xCoor < mySheepSquare.xCoor && mySheepSquare.xCoor < 18 && mapWithValues.get(getStringCoordinate(mySheepSquare, 0, +1)).value != -999) {
+                    move = Move.RIGHT;
                 }
             }
         } else {
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < 5; i++) {
                 pathing();
             }
 
@@ -179,46 +155,14 @@ public class Sheep extends UzhShortNameCreature {
                     }
                 }
             }
-
-
             //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
             //moveLikeJagger(goalSquare);
-
             if (goalSquare.sheepGotTheMovesLikeJagger.isEmpty()) {
                 move = Move.WAIT;
             } else {
                 move = goalSquare.sheepGotTheMovesLikeJagger.get(0);
             }
         }
-
-
-        //short version: we initialize our own hashmap, where we create the squares and store the value and the distance to the sheep in the squares of the hashmap.
-        //we then expand from the sheep, and each expansion the pathProfit of the new Square is originPathProfit-1+ValueOfNewSquare. we store this pathProfit in the new square, only if it did not exist yet or
-        //if it is bigger. We also store in the square as arraylist the moves we need to get there.
-        //at the end, we choose the Square with the highest distance and the highest PathProfit and execute its stored movementarray for two moves then recalculate everything since our sheeps position
-        //and the other things will have changed.
-
-        //each expansion costs -1. or add a int to the square how far away from the sheep it is. that is g (costs)  (A* search)
-        //each sqare has an int for its value (h) so grass=1 rhubarb = 5 fence = -999 enemy wolf and next to enemy wolf also. enemy sheep also.
-        //expand always the node with the lowest cost globally. after specific time amount stop. choose the longest expanded branch. so furthest away reached square with lowest global cost
-        //expand the already existing map by those values.
-
-
-        //Initialize map squares with distance costs up to 10
-        //Look at squares left right up and down of sheep (access coordinates)
-        //If is type empty, give total value -1. put in the move-arraylist of that square how you got there (example: Left)
-        //expand the node that has the highest distance and the lowest pathProfit. Also in 1 step accessible, so left, right, up, down. You temporarily subtract from the total value of each square its own value,
-        //add 1 to this total value, and if the total value is smaller for this square (or if it was empty before), you write (or overwrite) the total value and how you got there (LU -> Left Up).
-        //mark the ones that got already expanded to not cycle infinitely. Except their pathProfit changes, then unmark them.
-
-
-
-        /*initialize map with distances up to 10 from sheep. This will happen each time new since game states change. this would only need to happen every second time thought since this sheep moves two times. So counter if even use old strategy, if uneven make new. initilize so this makes sense.*/
-        //create sheep-root Square
-        //Square sheep = new Square(type, x, y, 0, 0, 0);
-        //expand: Create neighbor squares. Add values and distances (+1 or root square distance). If they are not outside the board, and dont exist yet in the hashmap, add them to the hashmap and to the toExpand Queue (except distance is >10.
-
-
     }
 
     private void pathing() {
@@ -245,7 +189,7 @@ public class Sheep extends UzhShortNameCreature {
             //get the upsquare
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, -1, 0));
             //assign the pathprofit to the upsquare
-            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+            if (square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
                 square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;  //this is correct
                 //store also the moves for that square how to reach it
                 ArrayList<Move> temp = new ArrayList<>();
@@ -256,14 +200,11 @@ public class Sheep extends UzhShortNameCreature {
                 //since we updated that square with a better pathprofit and an actual better path we need to unset the flag since we might be able to reach neighboring squares with a better path over this square
                 square.expandedForSearchPath = false;
             }
-            //Collections.copy(square.sheepGotTheMovesLikeJagger, temp); //ERROR java.lang.IndexOutOfBoundsException: Source dows not fit in dest
-            //square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger; this is bad. they both reference to the same object afterwards and owuld change the arraylist of the origin square too
-            //square.sheepGotTheMovesLikeJagger.add(Move.UP); //it breaks here! Sheep gets move up storey in array, as does maxprofitsquare, as does upsquare. is it linked, does it point to the same store location?
         }
         //leftsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, -1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, -1));
-            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+            if (square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
                 square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
                 ArrayList<Move> temp = new ArrayList<>();
                 temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
@@ -276,7 +217,7 @@ public class Sheep extends UzhShortNameCreature {
         //rightsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, 1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, 1));
-            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+            if (square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
                 square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
                 ArrayList<Move> temp = new ArrayList<>();
                 temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
@@ -289,7 +230,7 @@ public class Sheep extends UzhShortNameCreature {
         //downsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 1, 0))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 1, 0));
-            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+            if (square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
                 square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
                 ArrayList<Move> temp = new ArrayList<>();
                 temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
@@ -458,10 +399,6 @@ public class Sheep extends UzhShortNameCreature {
             //do not add square since it is outside of the play board
         }
     }
-
-
-    //at end when whole map is initialized, search if the enemy wolf appears. if yes, mark immediate neighbor squares as -999 value.
-
 
     //make data structure for Squares with values yCoor,xCoor,cost,value,pathProfit.
     //Make datastructure like in greedy. Hashmap with string and Square type. The string is the Coordinate (yCoor_xCoor).
