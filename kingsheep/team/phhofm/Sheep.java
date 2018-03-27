@@ -45,6 +45,8 @@ public class Sheep extends UzhShortNameCreature {
         maxPathProfit = -999999999;                         //this is super low so we can find the desitred square at the end
         thereIsEnemyWolf = false;
         maxPathProfitArrayList = new ArrayList<>();         //we use a list in case there are multiple squares with the same path profit to expand for the path like in the second interation with all value 0 meaning pathprofit -1
+        goalSquarePathProfitDistance = -9999999;
+
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
         mySheep = map[this.y][this.x];
@@ -63,6 +65,7 @@ public class Sheep extends UzhShortNameCreature {
         Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false, noMoves);
 
         mySheepSquare = sheep;
+        maxPathProfitSquare = sheep;
 
         //set this as initial goalSquare
         goalSquare = sheep;
@@ -159,6 +162,7 @@ public class Sheep extends UzhShortNameCreature {
             }
             //execute the MOVES. "YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOVES LIKE JAGGER. YOU GOT THE MOOOOOOOOOOOVES LIKE JAGGER." *sing and dance* I think i am sitting way to long at this exercise. Its friday evening, 21:40, the Lichthof is almost empty. Why am i doing masters? I think pretty much everyone is a better student than me. This code is so inefficient and complicated.
             //moveLikeJagger(goalSquare);
+            if (goalSquare.sheepGotTheMovesLikeJagger.size() < 1) {      //this is perfect. in first debug session, so initial map state, it suggests right,down,down,down,down,right,down,down to reach rhubarb and eat all grass in between :) but why does it stand still after a while?. Second iter: D,D,D,D,R,D,D,R,L. still perfect. Thirs it ok: R,R,R,R,R,D,,U,D,R. Foruth is bad: sheep origin square as goal. zero moves.
                 move = Move.WAIT;
             } else {
                 move = goalSquare.sheepGotTheMovesLikeJagger.get(0);    //first iteration: this outputs right, original array has size of 8. what happens now?
@@ -185,12 +189,12 @@ public class Sheep extends UzhShortNameCreature {
                 maxPathProfit = square.pathProfit;
                 maxPathProfitArrayList = new ArrayList<>(); //reset the list so if there is one Square with the highest pathprofit we actually only expand one square
                 maxPathProfitArrayList.add(square);
-            } else if (square.pathProfit == maxPathProfit){
+            } else if (square.pathProfit == maxPathProfit) {
                 maxPathProfitArrayList.add(square);
             }
         }
 
-        for(Square square: maxPathProfitArrayList) {
+        for (Square square : maxPathProfitArrayList) {
             maxPathProfitSquare = square;
             expandSquareForPathing(maxPathProfitSquare);
         }
