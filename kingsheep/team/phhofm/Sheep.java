@@ -253,6 +253,8 @@ public class Sheep extends UzhShortNameCreature {
                 temp.add(Move.UP);
                 square.sheepGotTheMovesLikeJagger = new ArrayList<>();
                 square.sheepGotTheMovesLikeJagger.addAll(temp);
+                //since we updated that square with a better pathprofit and an actual better path we need to unset the flag since we might be able to reach neighboring squares with a better path over this square
+                square.expandedForSearchPath = false;
             }
             //Collections.copy(square.sheepGotTheMovesLikeJagger, temp); //ERROR java.lang.IndexOutOfBoundsException: Source dows not fit in dest
             //square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger; this is bad. they both reference to the same object afterwards and owuld change the arraylist of the origin square too
@@ -268,6 +270,7 @@ public class Sheep extends UzhShortNameCreature {
                 temp.add(Move.LEFT);
                 square.sheepGotTheMovesLikeJagger = new ArrayList<>();
                 square.sheepGotTheMovesLikeJagger.addAll(temp);
+                square.expandedForSearchPath = false;
             }
         }
         //rightsquare
@@ -280,6 +283,7 @@ public class Sheep extends UzhShortNameCreature {
                 temp.add(Move.RIGHT);
                 square.sheepGotTheMovesLikeJagger = new ArrayList<>();
                 square.sheepGotTheMovesLikeJagger.addAll(temp);
+                square.expandedForSearchPath = false;
             }
         }
         //downsquare
@@ -292,11 +296,11 @@ public class Sheep extends UzhShortNameCreature {
                 temp.add(Move.DOWN);
                 square.sheepGotTheMovesLikeJagger = new ArrayList<>();
                 square.sheepGotTheMovesLikeJagger.addAll(temp);
+                square.expandedForSearchPath = false;
             }
         }
         //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
         maxPathProfitSquare.expandedForSearchPath = true;
-        //TODO IF YOU FIND A PATHPROFIT THAT IS HIGHER THE EXPANDED FLAG SHOULD BE RESET AND IT SHOULD GET CONSIDERED AGAIN
         //in other words, if one square we expand already exists, but we find a better way to it (higher pathprofit) we should unflag it because we can then expand it and reach neighboring squares maybe also with better path/pathprofit
     }
 
