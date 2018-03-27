@@ -112,8 +112,6 @@ public class Sheep extends UzhShortNameCreature {
             }
         }
 
-        //tested till here
-
         //now the search path
         //search for the square with the highest distance value and the highest pathProfit (carful: not all squares have pathProfits yet since we are assigning them in this iteration.
         //search first for the squares with existing pathProfit
@@ -144,6 +142,8 @@ public class Sheep extends UzhShortNameCreature {
             }
         }
 
+        //tested till here
+        //ps we always get eaten before there is no value anymore
         if (!thereIsAValue) {
             out.println("Sheep found no value");
             if (thereIsEnemyWolf) {
@@ -162,8 +162,6 @@ public class Sheep extends UzhShortNameCreature {
                 pathing();
             }
 
-
-            //TODO implement the moves into the squares so i can actually move after i found the desires square
             //rinse and repeat
 
             //find the square with the highest pathProfit and the highest distance
@@ -231,6 +229,9 @@ public class Sheep extends UzhShortNameCreature {
             }
         }
 
+        //we need to reset maxPathProfit
+        maxPathProfit = -99999999;
+
         //find the square with the highest pathprofit to expand
         for (Square square : suqaresToExpandInSearchForPath) {
             if (square.pathProfit >= maxPathProfit) {
@@ -244,6 +245,7 @@ public class Sheep extends UzhShortNameCreature {
             //get the upsquare
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, -1, 0));
             //assign the pathprofit to the upsquare
+            //TODO ONLY ASSIGN IF WE FOUND A PATHPROFIT THAT IS HIGHER; OR IF THE INITIAL IS 999 SINCE IT HAS NOT BEEN ASSIGNED YET
             square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;  //this is correct
             //store also the moves for that square how to reach it
             ArrayList<Move> temp = new ArrayList<>();
@@ -287,6 +289,8 @@ public class Sheep extends UzhShortNameCreature {
         }
         //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
         maxPathProfitSquare.expandedForSearchPath = true;
+        //TODO IF YOU FIND A PATHPROFIT THAT IS HIGHER THE EXPANDED FLAG SHOULD BE RESET AND IT SHOULD GET CONSIDERED AGAIN
+        //in other words, if one square we expand already exists, but we find a better way to it (higher pathprofit) we should unflag it because we can then expand it and reach neighboring squares maybe also with better path/pathprofit
     }
 
     //This method adds all valid neighbor squares for initialization to the hashmap. It assigns the distance and the value, and gives the pathprofit 999 as spaceholder since it can never normally reach this value.
