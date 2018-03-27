@@ -4,30 +4,22 @@ import kingsheep.*;
 
 import java.util.*;
 
-import static java.lang.System.*;
-
 public class Sheep extends UzhShortNameCreature {
 
+    private ArrayList<Square> suqaresToExpandInSearchForPath;
+    private Square maxPathProfitSquare;
+    private int maxPathProfit;
+    private final ArrayList<Move> noMoves = new ArrayList<>();
+    private Square enemyWolfSquare;
+    private Boolean thereIsEnemyWolf;
+    private ArrayList<Square> maxPathProfitArrayList;
     private HashMap<String, Square> mapWithValues;  //our hashmap for extended map, meaning squares with values
     private ArrayList<Square> squareInitializeExpandQueue;  //in initialization for expanding the not yet expanded squares. this changes during iteration, no fixed value
     private Type mySheep;
     private Type myWolf;
     private Type enemySheep;
     private Type enemyWolf;
-    private final int MAXDISTANCE = 20;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter. 8 till we reach rhubarb in original map
-    ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
     private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
-    boolean thereIsAValue;
-    ArrayList<Square> suqaresToExpandInSearchForPath;
-    Square maxPathProfitSquare;
-    int maxPathProfit;
-    Square goalSquare;
-    int goalSquarePathProfitDistance;
-    ArrayList<Move> noMoves = new ArrayList<Move>();
-    Square enemyWolfSquare;
-    Boolean thereIsEnemyWolf;
-    Square mySheepSquare;
-    ArrayList<Square> maxPathProfitArrayList;
 
     //original
     public Sheep(Type type, Simulator parent, int playerID, int x, int y) {
@@ -40,12 +32,12 @@ public class Sheep extends UzhShortNameCreature {
         squareInitializeExpandQueue = new ArrayList<>();    //queue with squares we can expand for the initialization (squares added to mapWithValues but have no pathprofit yet (=999)
         allInitializedSquares = new ArrayList<>();          //arraylist with all initialized squares to maxdistance
         mapWithValues = new HashMap<>();                    //extended map with additional values that i need
-        thereIsAValue = false;                              //check if there is food. otherwise just escape wolf
+        boolean thereIsAValue = false;
         suqaresToExpandInSearchForPath = new ArrayList<>(); //this is a queue which squares can be extended for pathProfit (need to be initialized and have their own pathprofit already assigned
         maxPathProfit = -999999999;                         //this is super low so we can find the desitred square at the end
         thereIsEnemyWolf = false;
         maxPathProfitArrayList = new ArrayList<>();         //we use a list in case there are multiple squares with the same path profit to expand for the path like in the second interation with all value 0 meaning pathprofit -1
-        goalSquarePathProfitDistance = -9999999;
+        int goalSquarePathProfitDistance = -9999999;
 
 
         //which sheep are we? Which is our enemy? Enemy needs to be set to -999 since we cannot move into it. But the Square where our sheep is in should be neutral since we can move off and on it again depending on the best path/moves.
@@ -64,11 +56,10 @@ public class Sheep extends UzhShortNameCreature {
         //Create root square where sheep is in for initialization
         Square sheep = new Square(this.type, this.x, this.y, 0, 0, 0, false, noMoves);
 
-        mySheepSquare = sheep;
         maxPathProfitSquare = sheep;
 
         //set this as initial goalSquare
-        goalSquare = sheep;
+        Square goalSquare = sheep;
 
         //add this root square to the expansion queue for initialization
         squareInitializeExpandQueue.add(sheep);
@@ -80,7 +71,7 @@ public class Sheep extends UzhShortNameCreature {
         allInitializedSquares.add(sheep);
 
         //make iterator since we modify the arraylist while traversing it. we would get a concurrentModificationException otherwise
-        initializeIter = squareInitializeExpandQueue.listIterator();
+        ListIterator<Square> initializeIter = squareInitializeExpandQueue.listIterator();
 
         //initialize hashmap until maxdistance. give every square the distance and the value according to type. fill in standard pathprofit since not known yet
         while (initializeIter.hasNext()) {
@@ -154,7 +145,7 @@ public class Sheep extends UzhShortNameCreature {
                 move = goalSquare.sheepGotTheMovesLikeJagger.get(0);    //first iteration: this outputs right, original array has size of 8. what happens now?
             }
         }
-    
+
 
     private void pathing() {
         //build the arraylist of squares to expand. we want to expand those that have a valid assigned pathProfit (not 999) and have not been expanded yet / where the flag is false (when they get overwritten in the process we change the flag again see other comments in this file haha :P so much what am i doing
@@ -256,6 +247,7 @@ public class Sheep extends UzhShortNameCreature {
         //Add all valid neighbour Squares
         try {
             //check if outside map. Map is always 15x19 squares, see assignment. Or distance is too great because resource limits (time especially).
+            int MAXDISTANCE = 20;
             if (origin.yCoor - 1 < 0 || origin.distance >= MAXDISTANCE) {
             } else {
                 //checks if this exists already in the Hashmap
@@ -411,9 +403,17 @@ public class Sheep extends UzhShortNameCreature {
     //In the Quare type, store yCoor, xCoor, distance, value, pathProfit.
     //this is used by the methods so it needs to be at the end otherwise in Java the methods will not recognize
 
+    private String getStringCoordinate(Square square, int yShift, int xShift) {
+        return Integer.toString(square.yCoor + yShift) + "_" + Integer.toString(square.xCoor + xShift);
+    }
+
     private class Square {
-        private Type type;
-        private int yCoor, xCoor, distance, value, pathProfit;
+        private final Type type;
+        private final int yCoor;
+        private final int xCoor;
+        private final int distance;
+        private int value;
+        private int pathProfit;
         private boolean expandedForSearchPath;
         private ArrayList<Move> sheepGotTheMovesLikeJagger;
 
@@ -424,12 +424,7 @@ public class Sheep extends UzhShortNameCreature {
             this.distance = distance;
             this.value = value;
             this.pathProfit = pathProfit;
-            this.expandedForSearchPath = expandedForSearchPath;
             this.sheepGotTheMovesLikeJagger = sheepGotTheMovesLikeJagger;
         }
-    }
-
-    protected String getStringCoordinate(Square square, int yShift, int xShift) {
-        return Integer.toString(square.yCoor + yShift) + "_" + Integer.toString(square.xCoor + xShift);
     }
 }
