@@ -14,7 +14,7 @@ public class Sheep extends UzhShortNameCreature {
     private Type myWolf;
     private Type enemySheep;
     private Type enemyWolf;
-    private final int MAXDISTANCE = 8;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter. 8 till we reach rhubarb in original map
+    private final int MAXDISTANCE = 20;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter. 8 till we reach rhubarb in original map
     ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
     private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
     boolean thereIsAValue;
@@ -125,20 +125,6 @@ public class Sheep extends UzhShortNameCreature {
 
         //tested till here
         //ps we always get eaten before there is no value anymore
-        if (!thereIsAValue) {
-            out.println("Sheep found no value");
-            if (thereIsEnemyWolf) {
-                if (enemyWolfSquare.yCoor > mySheepSquare.yCoor && mySheepSquare.yCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare, -1, 0)).value != -999) {
-                    move = Move.UP;
-                } else if (enemyWolfSquare.yCoor < mySheepSquare.yCoor && mySheepSquare.yCoor < 14 && mapWithValues.get(getStringCoordinate(mySheepSquare, +1, 0)).value != -999) {
-                    move = Move.DOWN;
-                } else if (enemyWolfSquare.xCoor > mySheepSquare.xCoor && mySheepSquare.xCoor > 0 && mapWithValues.get(getStringCoordinate(mySheepSquare, 0, -1)).value != -999) {
-                    move = Move.LEFT;
-                } else if (enemyWolfSquare.xCoor < mySheepSquare.xCoor && mySheepSquare.xCoor < 18 && mapWithValues.get(getStringCoordinate(mySheepSquare, 0, +1)).value != -999) {
-                    move = Move.RIGHT;
-                }
-            }
-        } else {
             for (int i = 0; i < 9; i++) {   //min 8 for reaching rhubarb in original map starting position
                 pathing();
             }
@@ -168,7 +154,7 @@ public class Sheep extends UzhShortNameCreature {
                 move = goalSquare.sheepGotTheMovesLikeJagger.get(0);    //first iteration: this outputs right, original array has size of 8. what happens now?
             }
         }
-    }
+    
 
     private void pathing() {
         //build the arraylist of squares to expand. we want to expand those that have a valid assigned pathProfit (not 999) and have not been expanded yet / where the flag is false (when they get overwritten in the process we change the flag again see other comments in this file haha :P so much what am i doing
