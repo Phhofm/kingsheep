@@ -245,14 +245,15 @@ public class Sheep extends UzhShortNameCreature {
             //get the upsquare
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, -1, 0));
             //assign the pathprofit to the upsquare
-            //TODO ONLY ASSIGN IF WE FOUND A PATHPROFIT THAT IS HIGHER; OR IF THE INITIAL IS 999 SINCE IT HAS NOT BEEN ASSIGNED YET
-            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;  //this is correct
-            //store also the moves for that square how to reach it
-            ArrayList<Move> temp = new ArrayList<>();
-            temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
-            temp.add(Move.UP);
-            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
-            square.sheepGotTheMovesLikeJagger.addAll(temp);
+            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+                square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;  //this is correct
+                //store also the moves for that square how to reach it
+                ArrayList<Move> temp = new ArrayList<>();
+                temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+                temp.add(Move.UP);
+                square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+                square.sheepGotTheMovesLikeJagger.addAll(temp);
+            }
             //Collections.copy(square.sheepGotTheMovesLikeJagger, temp); //ERROR java.lang.IndexOutOfBoundsException: Source dows not fit in dest
             //square.sheepGotTheMovesLikeJagger = maxPathProfitSquare.sheepGotTheMovesLikeJagger; this is bad. they both reference to the same object afterwards and owuld change the arraylist of the origin square too
             //square.sheepGotTheMovesLikeJagger.add(Move.UP); //it breaks here! Sheep gets move up storey in array, as does maxprofitsquare, as does upsquare. is it linked, does it point to the same store location?
@@ -260,32 +261,38 @@ public class Sheep extends UzhShortNameCreature {
         //leftsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, -1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, -1));
-            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            ArrayList<Move> temp = new ArrayList<>();
-            temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
-            temp.add(Move.LEFT);
-            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
-            square.sheepGotTheMovesLikeJagger.addAll(temp);
+            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+                square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+                ArrayList<Move> temp = new ArrayList<>();
+                temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+                temp.add(Move.LEFT);
+                square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+                square.sheepGotTheMovesLikeJagger.addAll(temp);
+            }
         }
         //rightsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 0, 1))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 0, 1));
-            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            ArrayList<Move> temp = new ArrayList<>();
-            temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
-            temp.add(Move.RIGHT);
-            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
-            square.sheepGotTheMovesLikeJagger.addAll(temp);
+            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+                square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+                ArrayList<Move> temp = new ArrayList<>();
+                temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+                temp.add(Move.RIGHT);
+                square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+                square.sheepGotTheMovesLikeJagger.addAll(temp);
+            }
         }
         //downsquare
         if (mapWithValues.containsKey(getStringCoordinate(maxPathProfitSquare, 1, 0))) {
             Square square = mapWithValues.get(getStringCoordinate(maxPathProfitSquare, 1, 0));
-            square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
-            ArrayList<Move> temp = new ArrayList<>();
-            temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
-            temp.add(Move.DOWN);
-            square.sheepGotTheMovesLikeJagger = new ArrayList<>();
-            square.sheepGotTheMovesLikeJagger.addAll(temp);
+            if(square.pathProfit == 999 || maxPathProfitSquare.pathProfit - 1 + square.value > square.pathProfit) {
+                square.pathProfit = maxPathProfitSquare.pathProfit - 1 + square.value;
+                ArrayList<Move> temp = new ArrayList<>();
+                temp.addAll(maxPathProfitSquare.sheepGotTheMovesLikeJagger);
+                temp.add(Move.DOWN);
+                square.sheepGotTheMovesLikeJagger = new ArrayList<>();
+                square.sheepGotTheMovesLikeJagger.addAll(temp);
+            }
         }
         //set this square to expanded so it wont get expanded again (unless we find a more profitable path to it, then we will of course expand it again).
         maxPathProfitSquare.expandedForSearchPath = true;
