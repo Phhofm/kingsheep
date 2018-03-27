@@ -14,7 +14,7 @@ public class Sheep extends UzhShortNameCreature {
     private Type myWolf;
     private Type enemySheep;
     private Type enemyWolf;
-    private final int MAXDISTANCE = 6;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
+    private final int MAXDISTANCE = 4;  //the distance to the sheep - squares that will be tests. this is mainly a performance influencing parameter
     ListIterator<Square> initializeIter;    //we need this to on the fly change the arraylist squateInitializeExpandQueue withut Java throwing an error
     private ArrayList<Square> allInitializedSquares;    //so we can search thorugh the initilized squares for the enemy wolf and give adjustent squares value -999
     boolean thereIsAValue;
@@ -85,12 +85,10 @@ public class Sheep extends UzhShortNameCreature {
             //initialization method
             initializeMapWithValues(square, square.yCoor, square.xCoor, map);
             //assign new before we iterate over again
-            //initializeIter = squareInitializeExpandQueue.listIterator();
-            System.out.println(initializeIter);
+            initializeIter = squareInitializeExpandQueue.listIterator();
         }
 
         //search for enemy wolf and give adjustent squares the value of -999 so we will never move right next to the enemy wolf to be eaten. Be eaten is the WORST CASE. This method has been tested with myWolf.
-        //TODO set like variable with wolfIsPresent and include in other loop so we dont need to loop thorugh whole array again (optimization)
         if(thereIsEnemyWolf){
             //give adjustent squares value -999 if they exist
             //up
@@ -110,33 +108,8 @@ public class Sheep extends UzhShortNameCreature {
                 mapWithValues.get(getStringCoordinate(enemyWolfSquare, 1, 0)).value = -999;
             }
         }
-        /*
-        for (Square square : allInitializedSquares) {
-            if (square.type != null && square.type.equals(enemyWolf)) {
 
-                //give adjustent squares value -999 if they exist
-                //up
-                if (mapWithValues.containsKey(getStringCoordinate(square, -1, 0))) {
-                    mapWithValues.get(getStringCoordinate(square, -1, 0)).value = -999;
-                }
-                //left
-                if (mapWithValues.containsKey(getStringCoordinate(square, 0, -1))) {
-                    mapWithValues.get(getStringCoordinate(square, 0, -1)).value = -999;
-                }
-                //right
-                if (mapWithValues.containsKey(getStringCoordinate(square, 0, 1))) {
-                    mapWithValues.get(getStringCoordinate(square, 0, 1)).value = -999;
-                }
-                //down
-                if (mapWithValues.containsKey(getStringCoordinate(square, 1, 0))) {
-                    mapWithValues.get(getStringCoordinate(square, 1, 0)).value = -999;
-                }
-            }
-        }
-        */
-
-        //what are those distances?
-        //TODO check distances. Check logic of distance giving
+        //tested till here
 
         //now the search path
         //search for the square with the highest distance value and the highest pathProfit (carful: not all squares have pathProfits yet since we are assigning them in this iteration.
@@ -171,7 +144,7 @@ public class Sheep extends UzhShortNameCreature {
         if (!thereIsAValue) {
             out.println("Sheep found no value");
         } else {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 2; i++) {
                 pathing();
             }
         }
@@ -340,8 +313,7 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(upsquare, 0, 0), upsquare);
                     //add to expandQueue
-                    //squareInitializeExpandQueue.add(upsquare);
-                    initializeIter.add(upsquare);
+                    squareInitializeExpandQueue.add(upsquare);
                     allInitializedSquares.add(upsquare);
                 }
             }
@@ -377,8 +349,7 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(rightsquare, 0, 0), rightsquare);
                     //add to expandQueue
-                    //squareInitializeExpandQueue.add(rightsquare);
-                    initializeIter.add(rightsquare);
+                    squareInitializeExpandQueue.add(rightsquare);
                     allInitializedSquares.add(rightsquare);
                 }
             }
@@ -415,8 +386,7 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(leftsquare, 0, 0), leftsquare);
                     //add to expandQueue
-                    //squareInitializeExpandQueue.add(leftsquare);
-                    initializeIter.add(leftsquare);
+                    squareInitializeExpandQueue.add(leftsquare);
                     allInitializedSquares.add(leftsquare);
                 }
             }
@@ -452,8 +422,7 @@ public class Sheep extends UzhShortNameCreature {
                     //add to hashmap
                     mapWithValues.put(getStringCoordinate(downsquare, 0, 0), downsquare);
                     //add to expandQueue
-                    //squareInitializeExpandQueue.add(downsquare);
-                    initializeIter.add(downsquare);
+                    squareInitializeExpandQueue.add(downsquare);
                     allInitializedSquares.add(downsquare);
                 }
             }
